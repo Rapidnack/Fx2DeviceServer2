@@ -1,0 +1,359 @@
+C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 1   
+
+
+C51 COMPILER V7.07, COMPILATION OF MODULE MYDAC
+OBJECT MODULE PLACED IN mydac.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE mydac.c BROWSE DEBUG OBJECTEXTEND TABS(3)
+
+stmt level    source
+
+   1          #pragma NOIV               // Do not generate interrupt vectors
+   2          
+   3          #include "fx2.h"
+   4          #include "fx2regs.h"
+   5          #include "syncdly.h"            // SYNCDELAY macro
+   6          
+   7          extern BOOL GotSUD;             // Received setup data flag
+   8          extern BOOL Sleep;
+   9          extern BOOL Rwuen;
+  10          extern BOOL Selfpwr;
+  11          
+  12          BYTE Configuration;             // Current configuration
+  13          BYTE AlternateSetting;          // Alternate settings
+  14          
+  15          #define VENDOR_DEVICE_TYPE 0xC0
+  16          #define VENDOR_DEVICE_PARAM 0xC1
+  17          
+  18          #define DEVICE_TYPE 0x01
+  19          #define DATA_PORT_NO 52001
+  20          
+  21          //-----------------------------------------------------------------------------
+  22          // Task Dispatcher hooks
+  23          //   The following hooks are called by the task dispatcher.
+  24          //-----------------------------------------------------------------------------
+  25          
+  26          void GpifInit( void );
+  27          
+  28          void TD_Init(void)             // Called once at startup
+  29          {
+  30   1         CPUCS = ((CPUCS & ~bmCLKSPD) | bmCLKSPD1) ;  // 48 MHz CPU clock
+  31   1      
+  32   1         REVCTL = 0x03; // REVCTL.0 and REVCTL.1 set to 1
+  33   1         SYNCDELAY;
+  34   1      
+  35   1         EP2CFG = 0xA8; // OUT, Bulk, 1024, Quad
+  36   1      
+  37   1         GpifInit();
+  38   1      
+  39   1         // start GPIF FIFO Write
+  40   1         FIFORESET = 0x80; // activate NAK-ALL to avoid race conditions
+  41   1         SYNCDELAY;
+  42   1      
+  43   1         EP2FIFOCFG = 0x00; //switching to manual mode
+  44   1         SYNCDELAY;
+  45   1         FIFORESET = 0x02; // Reset FIFO 2
+  46   1         SYNCDELAY;
+  47   1         OUTPKTEND = 0X82; //OUTPKTEND done four times as EP2 is quad buffered
+  48   1         SYNCDELAY;
+  49   1         OUTPKTEND = 0X82;
+  50   1         SYNCDELAY;
+  51   1         OUTPKTEND = 0X82;
+  52   1         SYNCDELAY;
+  53   1         OUTPKTEND = 0X82;
+  54   1         SYNCDELAY;
+  55   1         EP2FIFOCFG = 0x10; //switching to auto mode
+C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 2   
+
+  56   1         SYNCDELAY;
+  57   1      
+  58   1         FIFORESET = 0x00; //Release NAKALL
+  59   1         SYNCDELAY;
+  60   1      
+  61   1         EP2GPIFFLGSEL = 1;  // GPIF FIFOFlag is empty
+  62   1         SYNCDELAY;
+  63   1      
+  64   1         GPIFTCB0 = 1;
+  65   1         SYNCDELAY;
+  66   1         // trigger FIFO write transactions, using SFR
+  67   1         GPIFTRIG = 0 | 0; // R/W=0, EP[1:0]=FIFO_EpNum
+  68   1      }
+  69          
+  70          void TD_Poll(void)              // Called repeatedly while the device is idle
+  71          {
+  72   1      }
+  73          
+  74          BOOL TD_Suspend(void)          // Called before the device goes into suspend mode
+  75          {
+  76   1         return(TRUE);
+  77   1      }
+  78          
+  79          BOOL TD_Resume(void)          // Called after the device resumes
+  80          {
+  81   1         return(TRUE);
+  82   1      }
+  83          
+  84          //-----------------------------------------------------------------------------
+  85          // Device Request hooks
+  86          //   The following hooks are called by the end point 0 device request parser.
+  87          //-----------------------------------------------------------------------------
+  88          
+  89          BOOL DR_GetDescriptor(void)
+  90          {
+  91   1         return(TRUE);
+  92   1      }
+  93          
+  94          BOOL DR_SetConfiguration(void)   // Called when a Set Configuration command is received
+  95          {
+  96   1         Configuration = SETUPDAT[2];
+  97   1         return(TRUE);            // Handled by user code
+  98   1      }
+  99          
+ 100          BOOL DR_GetConfiguration(void)   // Called when a Get Configuration command is received
+ 101          {
+ 102   1         EP0BUF[0] = Configuration;
+ 103   1         EP0BCH = 0;
+ 104   1         EP0BCL = 1;
+ 105   1         return(TRUE);            // Handled by user code
+ 106   1      }
+ 107          
+ 108          BOOL DR_SetInterface(void)       // Called when a Set Interface command is received
+ 109          {
+ 110   1         AlternateSetting = SETUPDAT[2];
+ 111   1         return(TRUE);            // Handled by user code
+ 112   1      }
+ 113          
+ 114          BOOL DR_GetInterface(void)       // Called when a Set Interface command is received
+ 115          {
+ 116   1         EP0BUF[0] = AlternateSetting;
+ 117   1         EP0BCH = 0;
+C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 3   
+
+ 118   1         EP0BCL = 1;
+ 119   1         return(TRUE);            // Handled by user code
+ 120   1      }
+ 121          
+ 122          BOOL DR_GetStatus(void)
+ 123          {
+ 124   1         return(TRUE);
+ 125   1      }
+ 126          
+ 127          BOOL DR_ClearFeature(void)
+ 128          {
+ 129   1         return(TRUE);
+ 130   1      }
+ 131          
+ 132          BOOL DR_SetFeature(void)
+ 133          {
+ 134   1         return(TRUE);
+ 135   1      }
+ 136          
+ 137          BOOL DR_VendorCmnd(void)
+ 138          {
+ 139   1         switch (SETUPDAT[1])
+ 140   1         {
+ 141   2            case VENDOR_DEVICE_TYPE:
+ 142   2               EP0BUF[0] = DEVICE_TYPE;
+ 143   2               EP0BCH = 0;
+ 144   2               EP0BCL = 1;
+ 145   2               break;
+ 146   2      
+ 147   2            case VENDOR_DEVICE_PARAM:
+ 148   2               EP0BUF[0] = DATA_PORT_NO & 0xFF;
+ 149   2               EP0BUF[1] = (DATA_PORT_NO >> 8) & 0xFF;
+ 150   2               EP0BCH = 0;
+ 151   2               EP0BCL = 2;
+ 152   2               break;
+ 153   2      
+ 154   2            default:
+ 155   2               return(TRUE);
+ 156   2         }
+ 157   1      
+ 158   1         return(FALSE);
+ 159   1      }
+ 160          
+ 161          //-----------------------------------------------------------------------------
+ 162          // USB Interrupt Handlers
+ 163          //   The following functions are called by the USB interrupt jump table.
+ 164          //-----------------------------------------------------------------------------
+ 165          
+ 166          // Setup Data Available Interrupt Handler
+ 167          void ISR_Sudav(void) interrupt 0
+ 168          {
+ 169   1         GotSUD = TRUE;            // Set flag
+ 170   1         EZUSB_IRQ_CLEAR();
+ 171   1         USBIRQ = bmSUDAV;         // Clear SUDAV IRQ
+ 172   1      }
+ 173          
+ 174          // Setup Token Interrupt Handler
+ 175          void ISR_Sutok(void) interrupt 0
+ 176          {
+ 177   1         EZUSB_IRQ_CLEAR();
+ 178   1         USBIRQ = bmSUTOK;         // Clear SUTOK IRQ
+ 179   1      }
+C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 4   
+
+ 180          
+ 181          void ISR_Sof(void) interrupt 0
+ 182          {
+ 183   1         EZUSB_IRQ_CLEAR();
+ 184   1         USBIRQ = bmSOF;            // Clear SOF IRQ
+ 185   1      }
+ 186          
+ 187          void ISR_Ures(void) interrupt 0
+ 188          {
+ 189   1         // whenever we get a USB reset, we should revert to full speed mode
+ 190   1         pConfigDscr = pFullSpeedConfigDscr;
+ 191   1         ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 192   1         pOtherConfigDscr = pHighSpeedConfigDscr;
+ 193   1         ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 194   1      
+ 195   1         EZUSB_IRQ_CLEAR();
+ 196   1         USBIRQ = bmURES;         // Clear URES IRQ
+ 197   1      }
+ 198          
+ 199          void ISR_Susp(void) interrupt 0
+ 200          {
+ 201   1         Sleep = TRUE;
+ 202   1         EZUSB_IRQ_CLEAR();
+ 203   1         USBIRQ = bmSUSP;
+ 204   1      }
+ 205          
+ 206          void ISR_Highspeed(void) interrupt 0
+ 207          {
+ 208   1         if (EZUSB_HIGHSPEED())
+ 209   1         {
+ 210   2            pConfigDscr = pHighSpeedConfigDscr;
+ 211   2            ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 212   2            pOtherConfigDscr = pFullSpeedConfigDscr;
+ 213   2            ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 214   2         }
+ 215   1      
+ 216   1         EZUSB_IRQ_CLEAR();
+ 217   1         USBIRQ = bmHSGRANT;
+ 218   1      }
+ 219          void ISR_Ep0ack(void) interrupt 0
+ 220          {
+ 221   1      }
+ 222          void ISR_Stub(void) interrupt 0
+ 223          {
+ 224   1      }
+ 225          void ISR_Ep0in(void) interrupt 0
+ 226          {
+ 227   1      }
+ 228          void ISR_Ep0out(void) interrupt 0
+ 229          {
+ 230   1      }
+ 231          void ISR_Ep1in(void) interrupt 0
+ 232          {
+ 233   1      }
+ 234          void ISR_Ep1out(void) interrupt 0
+ 235          {
+ 236   1      }
+ 237          void ISR_Ep2inout(void) interrupt 0
+ 238          {
+ 239   1      }
+ 240          void ISR_Ep4inout(void) interrupt 0
+ 241          {
+C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 5   
+
+ 242   1      }
+ 243          void ISR_Ep6inout(void) interrupt 0
+ 244          {
+ 245   1      }
+ 246          void ISR_Ep8inout(void) interrupt 0
+ 247          {
+ 248   1      }
+ 249          void ISR_Ibn(void) interrupt 0
+ 250          {
+ 251   1      }
+ 252          void ISR_Ep0pingnak(void) interrupt 0
+ 253          {
+ 254   1      }
+ 255          void ISR_Ep1pingnak(void) interrupt 0
+ 256          {
+ 257   1      }
+ 258          void ISR_Ep2pingnak(void) interrupt 0
+ 259          {
+ 260   1      }
+ 261          void ISR_Ep4pingnak(void) interrupt 0
+ 262          {
+ 263   1      }
+ 264          void ISR_Ep6pingnak(void) interrupt 0
+ 265          {
+ 266   1      }
+ 267          void ISR_Ep8pingnak(void) interrupt 0
+ 268          {
+ 269   1      }
+ 270          void ISR_Errorlimit(void) interrupt 0
+ 271          {
+ 272   1      }
+ 273          void ISR_Ep2piderror(void) interrupt 0
+ 274          {
+ 275   1      }
+ 276          void ISR_Ep4piderror(void) interrupt 0
+ 277          {
+ 278   1      }
+ 279          void ISR_Ep6piderror(void) interrupt 0
+ 280          {
+ 281   1      }
+ 282          void ISR_Ep8piderror(void) interrupt 0
+ 283          {
+ 284   1      }
+ 285          void ISR_Ep2pflag(void) interrupt 0
+ 286          {
+ 287   1      }
+ 288          void ISR_Ep4pflag(void) interrupt 0
+ 289          {
+ 290   1      }
+ 291          void ISR_Ep6pflag(void) interrupt 0
+ 292          {
+ 293   1      }
+ 294          void ISR_Ep8pflag(void) interrupt 0
+ 295          {
+ 296   1      }
+ 297          void ISR_Ep2eflag(void) interrupt 0
+ 298          {
+ 299   1      }
+ 300          void ISR_Ep4eflag(void) interrupt 0
+ 301          {
+ 302   1      }
+ 303          void ISR_Ep6eflag(void) interrupt 0
+C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 6   
+
+ 304          {
+ 305   1      }
+ 306          void ISR_Ep8eflag(void) interrupt 0
+ 307          {
+ 308   1      }
+ 309          void ISR_Ep2fflag(void) interrupt 0
+ 310          {
+ 311   1      }
+ 312          void ISR_Ep4fflag(void) interrupt 0
+ 313          {
+ 314   1      }
+ 315          void ISR_Ep6fflag(void) interrupt 0
+ 316          {
+ 317   1      }
+ 318          void ISR_Ep8fflag(void) interrupt 0
+ 319          {
+ 320   1      }
+ 321          void ISR_GpifComplete(void) interrupt 0
+ 322          {
+ 323   1      }
+ 324          void ISR_GpifWaveform(void) interrupt 0
+ 325          {
+ 326   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    474    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

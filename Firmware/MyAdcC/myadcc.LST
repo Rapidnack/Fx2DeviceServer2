@@ -1,0 +1,449 @@
+C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 1   
+
+
+C51 COMPILER V7.07, COMPILATION OF MODULE MYADCC
+OBJECT MODULE PLACED IN myadcc.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE myadcc.c BROWSE DEBUG OBJECTEXTEND TABS(3)
+
+stmt level    source
+
+   1          #pragma NOIV               // Do not generate interrupt vectors
+   2          
+   3          #include "fx2.h"
+   4          #include "fx2regs.h"
+   5          #include "syncdly.h"            // SYNCDELAY macro
+   6          
+   7          extern BOOL GotSUD;             // Received setup data flag
+   8          extern BOOL Sleep;
+   9          extern BOOL Rwuen;
+  10          extern BOOL Selfpwr;
+  11          
+  12          BYTE Configuration;             // Current configuration
+  13          BYTE AlternateSetting;          // Alternate settings
+  14          
+  15          #define VENDOR_DEVICE_TYPE 0xC0
+  16          #define VENDOR_DEVICE_PARAM 0xC1
+  17          #define SET_SAMPLE_RATE 0xC2
+  18          
+  19          #define DEVICE_TYPE 0x04
+  20          #define DATA_PORT_NO 52004
+  21          #define CONTROL_PORT_NO 53004
+  22          
+  23          //-----------------------------------------------------------------------------
+  24          // Task Dispatcher hooks
+  25          //   The following hooks are called by the task dispatcher.
+  26          //-----------------------------------------------------------------------------
+  27          
+  28          BYTE StateCycle[] = { 11, 1, 11 }; // sample rate : 48MHz / (11 + 1 + 11 + 1) = 2MHz
+  29          
+  30          unsigned long GetRate()
+  31          {
+  32   1         BYTE i;
+  33   1         unsigned int cycle = 0;
+  34   1      
+  35   1         for ( i = 0; i < sizeof StateCycle; i++ )
+  36   1         {
+  37   2            cycle += StateCycle[i] ? StateCycle[i] : 256;
+  38   2         }
+  39   1         cycle++; // jump to S0
+  40   1         return 48000000UL / cycle;
+  41   1      }
+  42          
+  43          void ChangeStateCycle()
+  44          {
+  45   1         char xdata WaveData[128];
+  46   1         BYTE i;
+  47   1      
+  48   1         AUTOPTRH1 = MSB( &WaveData );
+  49   1         AUTOPTRL1 = LSB( &WaveData );  
+  50   1         AUTOPTRH2 = 0xE4;
+  51   1         AUTOPTRL2 = 0x00;
+  52   1         for ( i = 0x00; i < 128; i++ )
+  53   1         {
+  54   2            EXTAUTODAT1 = EXTAUTODAT2;
+  55   2         }
+C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 2   
+
+  56   1      
+  57   1         for ( i = 0; i < sizeof StateCycle; i++ )
+  58   1         {
+  59   2            WaveData[64 + i] = StateCycle[i];
+  60   2            WaveData[96 + i] = StateCycle[i];
+  61   2         }
+  62   1      
+  63   1         AUTOPTRH1 = MSB( &WaveData );
+  64   1         AUTOPTRL1 = LSB( &WaveData );  
+  65   1         AUTOPTRH2 = 0xE4;
+  66   1         AUTOPTRL2 = 0x00;
+  67   1         for ( i = 0x00; i < 128; i++ )
+  68   1         {
+  69   2            EXTAUTODAT2 = EXTAUTODAT1;
+  70   2         }
+  71   1      }
+  72          
+  73          void GpifInit( void );
+  74          
+  75          void TD_Init(void)             // Called once at startup
+  76          {
+  77   1         CPUCS = ((CPUCS & ~bmCLKSPD) | bmCLKSPD1) ;  // 48 MHz CPU clock
+  78   1      
+  79   1         REVCTL = 0x03; // REVCTL.0 and REVCTL.1 set to 1
+  80   1         SYNCDELAY;
+  81   1      
+  82   1         EP2CFG = 0xE8; // IN, Bulk, 1024, Quad
+  83   1      
+  84   1         GpifInit();
+  85   1         ChangeStateCycle();
+  86   1      
+  87   1         // start GPIF FIFO Read
+  88   1         FIFORESET = 0x80; // activate NAK-ALL to avoid race conditions
+  89   1         SYNCDELAY;
+  90   1      
+  91   1         EP2FIFOCFG = 0x00; //switching to manual mode
+  92   1         SYNCDELAY;
+  93   1         FIFORESET = 0x02; // Reset FIFO 6
+  94   1         SYNCDELAY;
+  95   1         EP2FIFOCFG = 0x08; //switching to auto mode
+  96   1         SYNCDELAY;
+  97   1      
+  98   1         FIFORESET = 0x00; //Release NAKALL
+  99   1         SYNCDELAY;
+ 100   1      
+ 101   1         EP2GPIFFLGSEL = 2; // GPIF FIFOFlag is full
+ 102   1         SYNCDELAY;
+ 103   1      
+ 104   1         GPIFTCB0 = 1;
+ 105   1         SYNCDELAY;
+ 106   1         // trigger FIFO read transactions, using SFR
+ 107   1         GPIFTRIG = bmBIT2 | 0; // R/W=1, EP[1:0]=FIFO_EpNum
+ 108   1      }
+ 109          
+ 110          void TD_Poll(void)              // Called repeatedly while the device is idle
+ 111          {
+ 112   1      }
+ 113          
+ 114          BOOL TD_Suspend(void)          // Called before the device goes into suspend mode
+ 115          {
+ 116   1         return(TRUE);
+ 117   1      }
+C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 3   
+
+ 118          
+ 119          BOOL TD_Resume(void)          // Called after the device resumes
+ 120          {
+ 121   1         return(TRUE);
+ 122   1      }
+ 123          
+ 124          //-----------------------------------------------------------------------------
+ 125          // Device Request hooks
+ 126          //   The following hooks are called by the end point 0 device request parser.
+ 127          //-----------------------------------------------------------------------------
+ 128          
+ 129          BOOL DR_GetDescriptor(void)
+ 130          {
+ 131   1         return(TRUE);
+ 132   1      }
+ 133          
+ 134          BOOL DR_SetConfiguration(void)   // Called when a Set Configuration command is received
+ 135          {
+ 136   1         Configuration = SETUPDAT[2];
+ 137   1         return(TRUE);            // Handled by user code
+ 138   1      }
+ 139          
+ 140          BOOL DR_GetConfiguration(void)   // Called when a Get Configuration command is received
+ 141          {
+ 142   1         EP0BUF[0] = Configuration;
+ 143   1         EP0BCH = 0;
+ 144   1         EP0BCL = 1;
+ 145   1         return(TRUE);            // Handled by user code
+ 146   1      }
+ 147          
+ 148          BOOL DR_SetInterface(void)       // Called when a Set Interface command is received
+ 149          {
+ 150   1         AlternateSetting = SETUPDAT[2];
+ 151   1         return(TRUE);            // Handled by user code
+ 152   1      }
+ 153          
+ 154          BOOL DR_GetInterface(void)       // Called when a Set Interface command is received
+ 155          {
+ 156   1         EP0BUF[0] = AlternateSetting;
+ 157   1         EP0BCH = 0;
+ 158   1         EP0BCL = 1;
+ 159   1         return(TRUE);            // Handled by user code
+ 160   1      }
+ 161          
+ 162          BOOL DR_GetStatus(void)
+ 163          {
+ 164   1         return(TRUE);
+ 165   1      }
+ 166          
+ 167          BOOL DR_ClearFeature(void)
+ 168          {
+ 169   1         return(TRUE);
+ 170   1      }
+ 171          
+ 172          BOOL DR_SetFeature(void)
+ 173          {
+ 174   1         return(TRUE);
+ 175   1      }
+ 176          
+ 177          BOOL DR_VendorCmnd(void)
+ 178          {
+ 179   1         switch (SETUPDAT[1])
+C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 4   
+
+ 180   1         {
+ 181   2            case VENDOR_DEVICE_TYPE:
+ 182   2               EP0BUF[0] = DEVICE_TYPE;
+ 183   2               EP0BCH = 0;
+ 184   2               EP0BCL = 1;
+ 185   2               break;
+ 186   2      
+ 187   2            case VENDOR_DEVICE_PARAM:
+ 188   2               EP0BUF[0] = DATA_PORT_NO & 0xFF;
+ 189   2               EP0BUF[1] = (DATA_PORT_NO >> 8) & 0xFF;
+ 190   2               EP0BUF[2] = CONTROL_PORT_NO & 0xFF;
+ 191   2               EP0BUF[3] = (CONTROL_PORT_NO >> 8) & 0xFF;
+ 192   2               EP0BCH = 0;
+ 193   2               EP0BCL = 4;
+ 194   2               break;
+ 195   2      
+ 196   2            case SET_SAMPLE_RATE:
+ 197   2               {
+ 198   3                  unsigned long rate;
+ 199   3                  unsigned long cycles;
+ 200   3      
+ 201   3                  rate = (unsigned long)SETUPDAT[2]
+ 202   3                      + ((unsigned long)SETUPDAT[3] << 8)
+ 203   3                      + ((unsigned long)SETUPDAT[4] << 16)
+ 204   3                      + ((unsigned long)SETUPDAT[5] << 24);
+ 205   3                  cycles = 48000000 / rate;
+ 206   3                  if (cycles < 4)
+ 207   3                     cycles = 4; // 12MHz
+ 208   3                  if (cycles > 500)
+ 209   3                     cycles = 500; // 96kHz
+ 210   3                  if (cycles % 2 == 0)
+ 211   3                  {
+ 212   4                     StateCycle[0] = (cycles / 2) - 1;
+ 213   4                     StateCycle[2] = (cycles / 2) - 1;
+ 214   4                  }
+ 215   3                  else
+ 216   3                  {
+ 217   4                     StateCycle[0] = (cycles / 2) - 1;
+ 218   4                     StateCycle[2] = (cycles / 2);
+ 219   4                  }
+ 220   3                  rate = GetRate();
+ 221   3      
+ 222   3                  GPIFABORT = 0xFF; // abort any waveforms pending
+ 223   3                  while( !( GPIFTRIG & 0x80 ) ) // poll GPIFTRIG.7 Done bit
+ 224   3                     ;
+ 225   3      
+ 226   3                  ChangeStateCycle();
+ 227   3      
+ 228   3                  GPIFTCB0 = 1;
+ 229   3                  SYNCDELAY;
+ 230   3                  // trigger FIFO read transactions, using SFR
+ 231   3                  GPIFTRIG = bmBIT2 | 0; // R/W=1, EP[1:0]=FIFO_EpNum
+ 232   3      
+ 233   3                  EP0BUF[0] = rate & 0xFF;
+ 234   3                  EP0BUF[1] = (rate >> 8) & 0xFF;
+ 235   3                  EP0BUF[2] = (rate >> 16) & 0xFF;
+ 236   3                  EP0BUF[3] = (rate >> 24) & 0xFF;
+ 237   3                  EP0BCH = 0;
+ 238   3                  EP0BCL = 4;
+ 239   3               }
+ 240   2               break;
+ 241   2      
+C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 5   
+
+ 242   2            default:
+ 243   2               return(TRUE);
+ 244   2         }
+ 245   1      
+ 246   1         return(FALSE);
+ 247   1      }
+ 248          
+ 249          //-----------------------------------------------------------------------------
+ 250          // USB Interrupt Handlers
+ 251          //   The following functions are called by the USB interrupt jump table.
+ 252          //-----------------------------------------------------------------------------
+ 253          
+ 254          // Setup Data Available Interrupt Handler
+ 255          void ISR_Sudav(void) interrupt 0
+ 256          {
+ 257   1         GotSUD = TRUE;            // Set flag
+ 258   1         EZUSB_IRQ_CLEAR();
+ 259   1         USBIRQ = bmSUDAV;         // Clear SUDAV IRQ
+ 260   1      }
+ 261          
+ 262          // Setup Token Interrupt Handler
+ 263          void ISR_Sutok(void) interrupt 0
+ 264          {
+ 265   1         EZUSB_IRQ_CLEAR();
+ 266   1         USBIRQ = bmSUTOK;         // Clear SUTOK IRQ
+ 267   1      }
+ 268          
+ 269          void ISR_Sof(void) interrupt 0
+ 270          {
+ 271   1         EZUSB_IRQ_CLEAR();
+ 272   1         USBIRQ = bmSOF;            // Clear SOF IRQ
+ 273   1      }
+ 274          
+ 275          void ISR_Ures(void) interrupt 0
+ 276          {
+ 277   1         // whenever we get a USB reset, we should revert to full speed mode
+ 278   1         pConfigDscr = pFullSpeedConfigDscr;
+ 279   1         ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 280   1         pOtherConfigDscr = pHighSpeedConfigDscr;
+ 281   1         ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 282   1      
+ 283   1         EZUSB_IRQ_CLEAR();
+ 284   1         USBIRQ = bmURES;         // Clear URES IRQ
+ 285   1      }
+ 286          
+ 287          void ISR_Susp(void) interrupt 0
+ 288          {
+ 289   1         Sleep = TRUE;
+ 290   1         EZUSB_IRQ_CLEAR();
+ 291   1         USBIRQ = bmSUSP;
+ 292   1      }
+ 293          
+ 294          void ISR_Highspeed(void) interrupt 0
+ 295          {
+ 296   1         if (EZUSB_HIGHSPEED())
+ 297   1         {
+ 298   2            pConfigDscr = pHighSpeedConfigDscr;
+ 299   2            ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 300   2            pOtherConfigDscr = pFullSpeedConfigDscr;
+ 301   2            ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 302   2         }
+ 303   1      
+C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 6   
+
+ 304   1         EZUSB_IRQ_CLEAR();
+ 305   1         USBIRQ = bmHSGRANT;
+ 306   1      }
+ 307          void ISR_Ep0ack(void) interrupt 0
+ 308          {
+ 309   1      }
+ 310          void ISR_Stub(void) interrupt 0
+ 311          {
+ 312   1      }
+ 313          void ISR_Ep0in(void) interrupt 0
+ 314          {
+ 315   1      }
+ 316          void ISR_Ep0out(void) interrupt 0
+ 317          {
+ 318   1      }
+ 319          void ISR_Ep1in(void) interrupt 0
+ 320          {
+ 321   1      }
+ 322          void ISR_Ep1out(void) interrupt 0
+ 323          {
+ 324   1      }
+ 325          void ISR_Ep2inout(void) interrupt 0
+ 326          {
+ 327   1      }
+ 328          void ISR_Ep4inout(void) interrupt 0
+ 329          {
+ 330   1      }
+ 331          void ISR_Ep6inout(void) interrupt 0
+ 332          {
+ 333   1      }
+ 334          void ISR_Ep8inout(void) interrupt 0
+ 335          {
+ 336   1      }
+ 337          void ISR_Ibn(void) interrupt 0
+ 338          {
+ 339   1      }
+ 340          void ISR_Ep0pingnak(void) interrupt 0
+ 341          {
+ 342   1      }
+ 343          void ISR_Ep1pingnak(void) interrupt 0
+ 344          {
+ 345   1      }
+ 346          void ISR_Ep2pingnak(void) interrupt 0
+ 347          {
+ 348   1      }
+ 349          void ISR_Ep4pingnak(void) interrupt 0
+ 350          {
+ 351   1      }
+ 352          void ISR_Ep6pingnak(void) interrupt 0
+ 353          {
+ 354   1      }
+ 355          void ISR_Ep8pingnak(void) interrupt 0
+ 356          {
+ 357   1      }
+ 358          void ISR_Errorlimit(void) interrupt 0
+ 359          {
+ 360   1      }
+ 361          void ISR_Ep2piderror(void) interrupt 0
+ 362          {
+ 363   1      }
+ 364          void ISR_Ep4piderror(void) interrupt 0
+ 365          {
+C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 7   
+
+ 366   1      }
+ 367          void ISR_Ep6piderror(void) interrupt 0
+ 368          {
+ 369   1      }
+ 370          void ISR_Ep8piderror(void) interrupt 0
+ 371          {
+ 372   1      }
+ 373          void ISR_Ep2pflag(void) interrupt 0
+ 374          {
+ 375   1      }
+ 376          void ISR_Ep4pflag(void) interrupt 0
+ 377          {
+ 378   1      }
+ 379          void ISR_Ep6pflag(void) interrupt 0
+ 380          {
+ 381   1      }
+ 382          void ISR_Ep8pflag(void) interrupt 0
+ 383          {
+ 384   1      }
+ 385          void ISR_Ep2eflag(void) interrupt 0
+ 386          {
+ 387   1      }
+ 388          void ISR_Ep4eflag(void) interrupt 0
+ 389          {
+ 390   1      }
+ 391          void ISR_Ep6eflag(void) interrupt 0
+ 392          {
+ 393   1      }
+ 394          void ISR_Ep8eflag(void) interrupt 0
+ 395          {
+ 396   1      }
+ 397          void ISR_Ep2fflag(void) interrupt 0
+ 398          {
+ 399   1      }
+ 400          void ISR_Ep4fflag(void) interrupt 0
+ 401          {
+ 402   1      }
+ 403          void ISR_Ep6fflag(void) interrupt 0
+ 404          {
+ 405   1      }
+ 406          void ISR_Ep8fflag(void) interrupt 0
+ 407          {
+ 408   1      }
+ 409          void ISR_GpifComplete(void) interrupt 0
+ 410          {
+ 411   1      }
+ 412          void ISR_GpifWaveform(void) interrupt 0
+ 413          {
+ 414   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    992    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----     128
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
