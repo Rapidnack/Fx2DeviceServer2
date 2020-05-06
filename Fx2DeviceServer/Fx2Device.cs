@@ -24,7 +24,7 @@ namespace Fx2DeviceServer
 			ADC_C = 4, // + control port
 		}
 
-		public enum EVendoeRequests
+		public enum EVendorRequests
 		{
 			DeviceType = 0xc0,
 			DeviceParam = 0xc1,
@@ -297,7 +297,7 @@ namespace Fx2DeviceServer
 			{
 				uint rate = uint.Parse(s.Split(':')[1]);
 
-				byte[] response = ReceiveVendorResponse((byte)EVendoeRequests.SetSampleRate, 4,
+				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.SetSampleRate, 4,
 					(ushort)(rate & 0xffff), (ushort)((rate >> 16) & 0xffff));
 
 				rate = (uint)(response[0] + (response[1] << 8) + (response[2] << 16) + (response[3] << 24));

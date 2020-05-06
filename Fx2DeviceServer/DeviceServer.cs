@@ -72,7 +72,7 @@ namespace Fx2DeviceServer
 				{
 					if (fx2Devices.Count(p => p.USBDevice == usbDevice) == 0)
 					{
-						byte[] response = Fx2Device.ReceiveVendorResponse(usbDevice, null, (byte)Fx2Device.EVendoeRequests.DeviceType, 1);
+						byte[] response = Fx2Device.ReceiveVendorResponse(usbDevice, null, (byte)Fx2Device.EVendorRequests.DeviceType, 1);
 						if (response == null)
 						{
 							fx2Devices.Add(new Fx2Device(usbDevice, null));

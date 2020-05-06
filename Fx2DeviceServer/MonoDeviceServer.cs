@@ -131,7 +131,7 @@ namespace Fx2DeviceServer
 						byte[] response;
 						using (var monoDeviceHandle = usbProfile.OpenDeviceHandle())
 						{
-							response = Fx2Device.ReceiveVendorResponse(null, monoDeviceHandle, (byte)Fx2Device.EVendoeRequests.DeviceType, 1);
+							response = Fx2Device.ReceiveVendorResponse(null, monoDeviceHandle, (byte)Fx2Device.EVendorRequests.DeviceType, 1);
 						}
 						if (response == null)
 						{

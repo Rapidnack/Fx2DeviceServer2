@@ -19,13 +19,13 @@ namespace Fx2DeviceServer
         {
 			if (deviceType == EDeviceType.DAC_C)
 			{
-				byte[] response = ReceiveVendorResponse((byte)EVendoeRequests.DeviceParam, 4);
+				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.DeviceParam, 4);
 				dataPortNo = (ushort)(response[0] + (response[1] << 8));
 				ControlPortNo = (ushort)(response[2] + (response[3] << 8));
 			}
 			else
 			{
-				byte[] response = ReceiveVendorResponse((byte)EVendoeRequests.DeviceParam, 2);
+				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.DeviceParam, 2);
 				dataPortNo = (ushort)(response[0] + (response[1] << 8));
 			}
 

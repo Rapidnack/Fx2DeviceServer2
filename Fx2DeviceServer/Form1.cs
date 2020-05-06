@@ -6,19 +6,19 @@ using System.Windows.Forms;
 namespace Fx2DeviceServer
 {
 	public partial class Form1 : Form
-    {
+	{
 		DeviceServer deviceServer;
 		MonoDeviceServer monoDeviceServer;
 
 		public Form1()
-        {
-            InitializeComponent();
-        }
+		{
+			InitializeComponent();
+		}
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            FileVersionInfo ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
-            this.Text = $"FX2 Device Server {ver.ProductMajorPart}.{ver.ProductMinorPart}.{ver.ProductPrivatePart}";
+		private void Form1_Load(object sender, EventArgs e)
+		{
+			FileVersionInfo ver = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+			this.Text = $"FX2 Device Server {ver.ProductMajorPart}.{ver.ProductMinorPart}.{ver.ProductPrivatePart}";
 
 			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
 			{
@@ -49,7 +49,7 @@ namespace Fx2DeviceServer
 		}
 
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
+		{
 			if (Environment.OSVersion.Platform == PlatformID.Win32NT)
 			{
 				deviceServer.Dispose();
