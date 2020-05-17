@@ -266,7 +266,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>50000 &lt;&lt; cic_rate</value>
+      <value>37500 &lt;&lt; cic_rate</value>
     </param>
   </block>
   <block>
