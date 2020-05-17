@@ -142,10 +142,13 @@ namespace Fx2DeviceServer
 							Fx2Device.EDeviceType deviceType = (Fx2Device.EDeviceType)response[0];
 							switch (deviceType)
 							{
-								case Fx2Device.EDeviceType.DAC: fx2Devices.Add(new DACDevice(null, usbProfile, deviceType)); break;
-								case Fx2Device.EDeviceType.ADC: fx2Devices.Add(new ADCDevice(null, usbProfile, deviceType)); break;
-								case Fx2Device.EDeviceType.DAC_C: fx2Devices.Add(new DACDevice(null, usbProfile, deviceType)); break;
-								case Fx2Device.EDeviceType.ADC_C: fx2Devices.Add(new ADCDevice(null, usbProfile, deviceType)); break;
+								case Fx2Device.EDeviceType.DAC:
+								case Fx2Device.EDeviceType.DAC_C:
+								case Fx2Device.EDeviceType.DAC_SA: fx2Devices.Add(new DACDevice(null, usbProfile, deviceType)); break;
+
+								case Fx2Device.EDeviceType.ADC:
+								case Fx2Device.EDeviceType.ADC_C:
+								case Fx2Device.EDeviceType.ADC_SA: fx2Devices.Add(new ADCDevice(null, usbProfile, deviceType)); break;
 
 								default: fx2Devices.Add(new Fx2Device(null, usbProfile)); break;
 							}

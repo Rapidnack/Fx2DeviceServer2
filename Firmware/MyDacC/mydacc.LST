@@ -1,4 +1,4 @@
-C51 COMPILER V7.07   MYDACC                                                                05/05/2020 13:42:58 PAGE 1   
+C51 COMPILER V7.07   MYDACC                                                                05/17/2020 16:52:35 PAGE 1   
 
 
 C51 COMPILER V7.07, COMPILATION OF MODULE MYDACC
@@ -62,7 +62,7 @@ stmt level    source
   53   1         {
   54   2            EXTAUTODAT1 = EXTAUTODAT2;
   55   2         }
-C51 COMPILER V7.07   MYDACC                                                                05/05/2020 13:42:58 PAGE 2   
+C51 COMPILER V7.07   MYDACC                                                                05/17/2020 16:52:35 PAGE 2   
 
   56   1      
   57   1         for ( i = 0; i < sizeof StateCycle; i++ )
@@ -126,7 +126,7 @@ stmt level    source
  115   1         GPIFTRIG = 0 | 0; // R/W=0, EP[1:0]=FIFO_EpNum
  116   1      }
  117          
-C51 COMPILER V7.07   MYDACC                                                                05/05/2020 13:42:58 PAGE 3   
+C51 COMPILER V7.07   MYDACC                                                                05/17/2020 16:52:35 PAGE 3   
 
  118          void TD_Poll(void)              // Called repeatedly while the device is idle
  119          {
@@ -190,7 +190,7 @@ stmt level    source
  177   1         return(TRUE);
  178   1      }
  179          
-C51 COMPILER V7.07   MYDACC                                                                05/05/2020 13:42:58 PAGE 4   
+C51 COMPILER V7.07   MYDACC                                                                05/17/2020 16:52:35 PAGE 4   
 
  180          BOOL DR_SetFeature(void)
  181          {
@@ -225,229 +225,231 @@ stmt level    source
  210   3                      + ((unsigned long)SETUPDAT[3] << 8)
  211   3                      + ((unsigned long)SETUPDAT[4] << 16)
  212   3                      + ((unsigned long)SETUPDAT[5] << 24);
- 213   3                  cycles = 48000000 / rate;
- 214   3                  if (cycles < 4)
- 215   3                     cycles = 4; // 12MHz
- 216   3                  if (cycles > 500)
- 217   3                     cycles = 500; // 96kHz
- 218   3                  if (cycles % 2 == 0)
- 219   3                  {
- 220   4                     StateCycle[0] = (cycles / 2) - 1;
- 221   4                     StateCycle[2] = (cycles / 2) - 1;
- 222   4                  }
- 223   3                  else
- 224   3                  {
- 225   4                     StateCycle[0] = (cycles / 2) - 1;
- 226   4                     StateCycle[2] = (cycles / 2);
- 227   4                  }
- 228   3                  rate = GetRate();
- 229   3      
- 230   3                  GPIFABORT = 0xFF; // abort any waveforms pending
- 231   3                  while( !( GPIFTRIG & 0x80 ) ) // poll GPIFTRIG.7 Done bit
- 232   3                     ;
- 233   3      
- 234   3                  ChangeStateCycle();
+ 213   3                  if (rate == 0)
+ 214   3                     rate = 1;
+ 215   3                  cycles = 48000000 / rate;
+ 216   3                  if (cycles < 4)
+ 217   3                     cycles = 4; // 12MHz
+ 218   3                  if (cycles > 500)
+ 219   3                     cycles = 500; // 96kHz
+ 220   3                  if (cycles % 2 == 0)
+ 221   3                  {
+ 222   4                     StateCycle[0] = (cycles / 2) - 1;
+ 223   4                     StateCycle[2] = (cycles / 2) - 1;
+ 224   4                  }
+ 225   3                  else
+ 226   3                  {
+ 227   4                     StateCycle[0] = (cycles / 2) - 1;
+ 228   4                     StateCycle[2] = (cycles / 2);
+ 229   4                  }
+ 230   3                  rate = GetRate();
+ 231   3      
+ 232   3                  GPIFABORT = 0xFF; // abort any waveforms pending
+ 233   3                  while( !( GPIFTRIG & 0x80 ) ) // poll GPIFTRIG.7 Done bit
+ 234   3                     ;
  235   3      
- 236   3                  GPIFTCB0 = 1;
- 237   3                  SYNCDELAY;
- 238   3                  // trigger FIFO write transactions, using SFR
- 239   3                  GPIFTRIG = 0 | 0; // R/W=0, EP[1:0]=FIFO_EpNum
- 240   3      
- 241   3                  EP0BUF[0] = rate & 0xFF;
-C51 COMPILER V7.07   MYDACC                                                                05/05/2020 13:42:58 PAGE 5   
+ 236   3                  ChangeStateCycle();
+ 237   3      
+ 238   3                  GPIFTCB0 = 1;
+ 239   3                  SYNCDELAY;
+ 240   3                  // trigger FIFO write transactions, using SFR
+ 241   3                  GPIFTRIG = 0 | 0; // R/W=0, EP[1:0]=FIFO_EpNum
+C51 COMPILER V7.07   MYDACC                                                                05/17/2020 16:52:35 PAGE 5   
 
- 242   3                  EP0BUF[1] = (rate >> 8) & 0xFF;
- 243   3                  EP0BUF[2] = (rate >> 16) & 0xFF;
- 244   3                  EP0BUF[3] = (rate >> 24) & 0xFF;
- 245   3                  EP0BCH = 0;
- 246   3                  EP0BCL = 4;
- 247   3               }
- 248   2               break;
- 249   2      
- 250   2            default:
- 251   2               return(TRUE);
- 252   2         }
- 253   1      
- 254   1         return(FALSE);
- 255   1      }
- 256          
- 257          //-----------------------------------------------------------------------------
- 258          // USB Interrupt Handlers
- 259          //   The following functions are called by the USB interrupt jump table.
- 260          //-----------------------------------------------------------------------------
- 261          
- 262          // Setup Data Available Interrupt Handler
- 263          void ISR_Sudav(void) interrupt 0
- 264          {
- 265   1         GotSUD = TRUE;            // Set flag
- 266   1         EZUSB_IRQ_CLEAR();
- 267   1         USBIRQ = bmSUDAV;         // Clear SUDAV IRQ
- 268   1      }
- 269          
- 270          // Setup Token Interrupt Handler
- 271          void ISR_Sutok(void) interrupt 0
- 272          {
- 273   1         EZUSB_IRQ_CLEAR();
- 274   1         USBIRQ = bmSUTOK;         // Clear SUTOK IRQ
- 275   1      }
- 276          
- 277          void ISR_Sof(void) interrupt 0
- 278          {
- 279   1         EZUSB_IRQ_CLEAR();
- 280   1         USBIRQ = bmSOF;            // Clear SOF IRQ
- 281   1      }
- 282          
- 283          void ISR_Ures(void) interrupt 0
- 284          {
- 285   1         // whenever we get a USB reset, we should revert to full speed mode
- 286   1         pConfigDscr = pFullSpeedConfigDscr;
- 287   1         ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
- 288   1         pOtherConfigDscr = pHighSpeedConfigDscr;
- 289   1         ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
- 290   1      
- 291   1         EZUSB_IRQ_CLEAR();
- 292   1         USBIRQ = bmURES;         // Clear URES IRQ
- 293   1      }
- 294          
- 295          void ISR_Susp(void) interrupt 0
- 296          {
- 297   1         Sleep = TRUE;
- 298   1         EZUSB_IRQ_CLEAR();
- 299   1         USBIRQ = bmSUSP;
- 300   1      }
- 301          
- 302          void ISR_Highspeed(void) interrupt 0
- 303          {
-C51 COMPILER V7.07   MYDACC                                                                05/05/2020 13:42:58 PAGE 6   
+ 242   3      
+ 243   3                  EP0BUF[0] = rate & 0xFF;
+ 244   3                  EP0BUF[1] = (rate >> 8) & 0xFF;
+ 245   3                  EP0BUF[2] = (rate >> 16) & 0xFF;
+ 246   3                  EP0BUF[3] = (rate >> 24) & 0xFF;
+ 247   3                  EP0BCH = 0;
+ 248   3                  EP0BCL = 4;
+ 249   3               }
+ 250   2               break;
+ 251   2      
+ 252   2            default:
+ 253   2               return(TRUE);
+ 254   2         }
+ 255   1      
+ 256   1         return(FALSE);
+ 257   1      }
+ 258          
+ 259          //-----------------------------------------------------------------------------
+ 260          // USB Interrupt Handlers
+ 261          //   The following functions are called by the USB interrupt jump table.
+ 262          //-----------------------------------------------------------------------------
+ 263          
+ 264          // Setup Data Available Interrupt Handler
+ 265          void ISR_Sudav(void) interrupt 0
+ 266          {
+ 267   1         GotSUD = TRUE;            // Set flag
+ 268   1         EZUSB_IRQ_CLEAR();
+ 269   1         USBIRQ = bmSUDAV;         // Clear SUDAV IRQ
+ 270   1      }
+ 271          
+ 272          // Setup Token Interrupt Handler
+ 273          void ISR_Sutok(void) interrupt 0
+ 274          {
+ 275   1         EZUSB_IRQ_CLEAR();
+ 276   1         USBIRQ = bmSUTOK;         // Clear SUTOK IRQ
+ 277   1      }
+ 278          
+ 279          void ISR_Sof(void) interrupt 0
+ 280          {
+ 281   1         EZUSB_IRQ_CLEAR();
+ 282   1         USBIRQ = bmSOF;            // Clear SOF IRQ
+ 283   1      }
+ 284          
+ 285          void ISR_Ures(void) interrupt 0
+ 286          {
+ 287   1         // whenever we get a USB reset, we should revert to full speed mode
+ 288   1         pConfigDscr = pFullSpeedConfigDscr;
+ 289   1         ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 290   1         pOtherConfigDscr = pHighSpeedConfigDscr;
+ 291   1         ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 292   1      
+ 293   1         EZUSB_IRQ_CLEAR();
+ 294   1         USBIRQ = bmURES;         // Clear URES IRQ
+ 295   1      }
+ 296          
+ 297          void ISR_Susp(void) interrupt 0
+ 298          {
+ 299   1         Sleep = TRUE;
+ 300   1         EZUSB_IRQ_CLEAR();
+ 301   1         USBIRQ = bmSUSP;
+ 302   1      }
+ 303          
+C51 COMPILER V7.07   MYDACC                                                                05/17/2020 16:52:35 PAGE 6   
 
- 304   1         if (EZUSB_HIGHSPEED())
- 305   1         {
- 306   2            pConfigDscr = pHighSpeedConfigDscr;
- 307   2            ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
- 308   2            pOtherConfigDscr = pFullSpeedConfigDscr;
- 309   2            ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
- 310   2         }
- 311   1      
- 312   1         EZUSB_IRQ_CLEAR();
- 313   1         USBIRQ = bmHSGRANT;
- 314   1      }
- 315          void ISR_Ep0ack(void) interrupt 0
- 316          {
- 317   1      }
- 318          void ISR_Stub(void) interrupt 0
- 319          {
- 320   1      }
- 321          void ISR_Ep0in(void) interrupt 0
- 322          {
- 323   1      }
- 324          void ISR_Ep0out(void) interrupt 0
- 325          {
- 326   1      }
- 327          void ISR_Ep1in(void) interrupt 0
- 328          {
- 329   1      }
- 330          void ISR_Ep1out(void) interrupt 0
- 331          {
- 332   1      }
- 333          void ISR_Ep2inout(void) interrupt 0
- 334          {
- 335   1      }
- 336          void ISR_Ep4inout(void) interrupt 0
- 337          {
- 338   1      }
- 339          void ISR_Ep6inout(void) interrupt 0
- 340          {
- 341   1      }
- 342          void ISR_Ep8inout(void) interrupt 0
- 343          {
- 344   1      }
- 345          void ISR_Ibn(void) interrupt 0
- 346          {
- 347   1      }
- 348          void ISR_Ep0pingnak(void) interrupt 0
- 349          {
- 350   1      }
- 351          void ISR_Ep1pingnak(void) interrupt 0
- 352          {
- 353   1      }
- 354          void ISR_Ep2pingnak(void) interrupt 0
- 355          {
- 356   1      }
- 357          void ISR_Ep4pingnak(void) interrupt 0
- 358          {
- 359   1      }
- 360          void ISR_Ep6pingnak(void) interrupt 0
- 361          {
- 362   1      }
- 363          void ISR_Ep8pingnak(void) interrupt 0
- 364          {
- 365   1      }
-C51 COMPILER V7.07   MYDACC                                                                05/05/2020 13:42:58 PAGE 7   
+ 304          void ISR_Highspeed(void) interrupt 0
+ 305          {
+ 306   1         if (EZUSB_HIGHSPEED())
+ 307   1         {
+ 308   2            pConfigDscr = pHighSpeedConfigDscr;
+ 309   2            ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 310   2            pOtherConfigDscr = pFullSpeedConfigDscr;
+ 311   2            ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 312   2         }
+ 313   1      
+ 314   1         EZUSB_IRQ_CLEAR();
+ 315   1         USBIRQ = bmHSGRANT;
+ 316   1      }
+ 317          void ISR_Ep0ack(void) interrupt 0
+ 318          {
+ 319   1      }
+ 320          void ISR_Stub(void) interrupt 0
+ 321          {
+ 322   1      }
+ 323          void ISR_Ep0in(void) interrupt 0
+ 324          {
+ 325   1      }
+ 326          void ISR_Ep0out(void) interrupt 0
+ 327          {
+ 328   1      }
+ 329          void ISR_Ep1in(void) interrupt 0
+ 330          {
+ 331   1      }
+ 332          void ISR_Ep1out(void) interrupt 0
+ 333          {
+ 334   1      }
+ 335          void ISR_Ep2inout(void) interrupt 0
+ 336          {
+ 337   1      }
+ 338          void ISR_Ep4inout(void) interrupt 0
+ 339          {
+ 340   1      }
+ 341          void ISR_Ep6inout(void) interrupt 0
+ 342          {
+ 343   1      }
+ 344          void ISR_Ep8inout(void) interrupt 0
+ 345          {
+ 346   1      }
+ 347          void ISR_Ibn(void) interrupt 0
+ 348          {
+ 349   1      }
+ 350          void ISR_Ep0pingnak(void) interrupt 0
+ 351          {
+ 352   1      }
+ 353          void ISR_Ep1pingnak(void) interrupt 0
+ 354          {
+ 355   1      }
+ 356          void ISR_Ep2pingnak(void) interrupt 0
+ 357          {
+ 358   1      }
+ 359          void ISR_Ep4pingnak(void) interrupt 0
+ 360          {
+ 361   1      }
+ 362          void ISR_Ep6pingnak(void) interrupt 0
+ 363          {
+ 364   1      }
+ 365          void ISR_Ep8pingnak(void) interrupt 0
+C51 COMPILER V7.07   MYDACC                                                                05/17/2020 16:52:35 PAGE 7   
 
- 366          void ISR_Errorlimit(void) interrupt 0
- 367          {
- 368   1      }
- 369          void ISR_Ep2piderror(void) interrupt 0
- 370          {
- 371   1      }
- 372          void ISR_Ep4piderror(void) interrupt 0
- 373          {
- 374   1      }
- 375          void ISR_Ep6piderror(void) interrupt 0
- 376          {
- 377   1      }
- 378          void ISR_Ep8piderror(void) interrupt 0
- 379          {
- 380   1      }
- 381          void ISR_Ep2pflag(void) interrupt 0
- 382          {
- 383   1      }
- 384          void ISR_Ep4pflag(void) interrupt 0
- 385          {
- 386   1      }
- 387          void ISR_Ep6pflag(void) interrupt 0
- 388          {
- 389   1      }
- 390          void ISR_Ep8pflag(void) interrupt 0
- 391          {
- 392   1      }
- 393          void ISR_Ep2eflag(void) interrupt 0
- 394          {
- 395   1      }
- 396          void ISR_Ep4eflag(void) interrupt 0
- 397          {
- 398   1      }
- 399          void ISR_Ep6eflag(void) interrupt 0
- 400          {
- 401   1      }
- 402          void ISR_Ep8eflag(void) interrupt 0
- 403          {
- 404   1      }
- 405          void ISR_Ep2fflag(void) interrupt 0
- 406          {
- 407   1      }
- 408          void ISR_Ep4fflag(void) interrupt 0
- 409          {
- 410   1      }
- 411          void ISR_Ep6fflag(void) interrupt 0
- 412          {
- 413   1      }
- 414          void ISR_Ep8fflag(void) interrupt 0
- 415          {
- 416   1      }
- 417          void ISR_GpifComplete(void) interrupt 0
- 418          {
- 419   1      }
- 420          void ISR_GpifWaveform(void) interrupt 0
- 421          {
- 422   1      }
+ 366          {
+ 367   1      }
+ 368          void ISR_Errorlimit(void) interrupt 0
+ 369          {
+ 370   1      }
+ 371          void ISR_Ep2piderror(void) interrupt 0
+ 372          {
+ 373   1      }
+ 374          void ISR_Ep4piderror(void) interrupt 0
+ 375          {
+ 376   1      }
+ 377          void ISR_Ep6piderror(void) interrupt 0
+ 378          {
+ 379   1      }
+ 380          void ISR_Ep8piderror(void) interrupt 0
+ 381          {
+ 382   1      }
+ 383          void ISR_Ep2pflag(void) interrupt 0
+ 384          {
+ 385   1      }
+ 386          void ISR_Ep4pflag(void) interrupt 0
+ 387          {
+ 388   1      }
+ 389          void ISR_Ep6pflag(void) interrupt 0
+ 390          {
+ 391   1      }
+ 392          void ISR_Ep8pflag(void) interrupt 0
+ 393          {
+ 394   1      }
+ 395          void ISR_Ep2eflag(void) interrupt 0
+ 396          {
+ 397   1      }
+ 398          void ISR_Ep4eflag(void) interrupt 0
+ 399          {
+ 400   1      }
+ 401          void ISR_Ep6eflag(void) interrupt 0
+ 402          {
+ 403   1      }
+ 404          void ISR_Ep8eflag(void) interrupt 0
+ 405          {
+ 406   1      }
+ 407          void ISR_Ep2fflag(void) interrupt 0
+ 408          {
+ 409   1      }
+ 410          void ISR_Ep4fflag(void) interrupt 0
+ 411          {
+ 412   1      }
+ 413          void ISR_Ep6fflag(void) interrupt 0
+ 414          {
+ 415   1      }
+ 416          void ISR_Ep8fflag(void) interrupt 0
+ 417          {
+ 418   1      }
+ 419          void ISR_GpifComplete(void) interrupt 0
+ 420          {
+ 421   1      }
+ 422          void ISR_GpifWaveform(void) interrupt 0
+ 423          {
+ 424   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1011    ----
-   CONSTANT SIZE    =   ----    ----
-C51 COMPILER V7.07   MYDACC                                                                05/05/2020 13:42:58 PAGE 8   
+C51 COMPILER V7.07   MYDACC                                                                05/17/2020 16:52:35 PAGE 8   
 
+   CODE SIZE        =   1040    ----
+   CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----     128
    PDATA SIZE       =   ----    ----
    DATA SIZE        =      5       8

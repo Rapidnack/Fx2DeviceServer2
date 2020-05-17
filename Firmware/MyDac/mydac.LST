@@ -1,4 +1,4 @@
-C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 1   
+C51 COMPILER V7.07   MYDAC                                                                 05/17/2020 16:57:20 PAGE 1   
 
 
 C51 COMPILER V7.07, COMPILATION OF MODULE MYDAC
@@ -62,7 +62,7 @@ stmt level    source
   53   1         OUTPKTEND = 0X82;
   54   1         SYNCDELAY;
   55   1         EP2FIFOCFG = 0x10; //switching to auto mode
-C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 2   
+C51 COMPILER V7.07   MYDAC                                                                 05/17/2020 16:57:20 PAGE 2   
 
   56   1         SYNCDELAY;
   57   1      
@@ -126,7 +126,7 @@ stmt level    source
  115          {
  116   1         EP0BUF[0] = AlternateSetting;
  117   1         EP0BCH = 0;
-C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 3   
+C51 COMPILER V7.07   MYDAC                                                                 05/17/2020 16:57:20 PAGE 3   
 
  118   1         EP0BCL = 1;
  119   1         return(TRUE);            // Handled by user code
@@ -190,7 +190,7 @@ stmt level    source
  177   1         EZUSB_IRQ_CLEAR();
  178   1         USBIRQ = bmSUTOK;         // Clear SUTOK IRQ
  179   1      }
-C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 4   
+C51 COMPILER V7.07   MYDAC                                                                 05/17/2020 16:57:20 PAGE 4   
 
  180          
  181          void ISR_Sof(void) interrupt 0
@@ -254,7 +254,7 @@ stmt level    source
  239   1      }
  240          void ISR_Ep4inout(void) interrupt 0
  241          {
-C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 5   
+C51 COMPILER V7.07   MYDAC                                                                 05/17/2020 16:57:20 PAGE 5   
 
  242   1      }
  243          void ISR_Ep6inout(void) interrupt 0
@@ -318,7 +318,7 @@ stmt level    source
  301          {
  302   1      }
  303          void ISR_Ep6eflag(void) interrupt 0
-C51 COMPILER V7.07   MYDAC                                                                 04/12/2020 09:46:43 PAGE 6   
+C51 COMPILER V7.07   MYDAC                                                                 05/17/2020 16:57:20 PAGE 6   
 
  304          {
  305   1      }

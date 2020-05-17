@@ -22,6 +22,8 @@ namespace Fx2DeviceServer
             ADC = 2,
 			DAC_C = 3, // + control port
 			ADC_C = 4, // + control port
+			DAC_SA = 5, // slave fifo + avalon packet
+			ADC_SA = 6, // slave fifo + avalon packet
 		}
 
 		public enum EVendorRequests
@@ -29,11 +31,13 @@ namespace Fx2DeviceServer
 			DeviceType = 0xc0,
 			DeviceParam = 0xc1,
 			SetSampleRate = 0xc2,
+			SetSpiCs = 0xc3,
 		}
 
 		private static Dictionary<ushort, TcpListener> listenerDict = new Dictionary<ushort, TcpListener>();
 		private TcpClient controlClient = null;
 		protected const int TIMEOUT = 3000;
+		private IAvalonPacket avalonPacket = null;
 
 		protected EDeviceType DeviceType { get; private set; } = EDeviceType.Unknown;
 
@@ -48,7 +52,7 @@ namespace Fx2DeviceServer
 			{
 				_controlPortNo = value;
 
-				if (1024 <= ControlPortNo)
+				if (0 < ControlPortNo)
 				{
 					CancellationTokenSource cts = new CancellationTokenSource();
 					var ct = cts.Token;
@@ -87,9 +91,9 @@ namespace Fx2DeviceServer
 											while (!tcpCt.IsCancellationRequested)
 											{
 												string str = sr.ReadLine();
-												if (str.Trim() == string.Empty)
+												if (string.IsNullOrWhiteSpace(str))
 													return; // keep alive
-												Console.WriteLine($"{ControlPortNo}: [in] {str}");
+												Console.WriteLine($"{ControlPortNo}: [in] {str.Trim()}");
 
 												ProcessInput(sw, str);
 											}
@@ -185,6 +189,20 @@ namespace Fx2DeviceServer
             {
                 Console.WriteLine($"+ {this}");
             }
+
+			if (deviceType == EDeviceType.DAC_SA || deviceType == EDeviceType.ADC_SA)
+			{
+				if (usbDevice != null)
+				{
+					CyBulkEndPoint outEndpoint = usbDevice.EndPointOf(0x01) as CyBulkEndPoint;
+					CyBulkEndPoint inEndpoint = usbDevice.EndPointOf(0x81) as CyBulkEndPoint;
+					avalonPacket = new AvalonPacket(outEndpoint, inEndpoint);
+				}
+				else
+				{
+					avalonPacket = new MonoAvalonPacket(MonoDeviceHandle);
+				}
+			}
         }
 
         private bool disposed = false;
@@ -293,15 +311,67 @@ namespace Fx2DeviceServer
 
 		protected virtual void ProcessInput(StreamWriter sw, string s)
 		{
-			if (s.StartsWith("*Rate:"))
+			switch (DeviceType)
 			{
-				uint rate = uint.Parse(s.Split(':')[1]);
+				case EDeviceType.DAC_C:
+				case EDeviceType.ADC_C:
+					if (s.StartsWith("*Rate:"))
+					{
+						string param = s.Split(':')[1];
 
-				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.SetSampleRate, 4,
-					(ushort)(rate & 0xffff), (ushort)((rate >> 16) & 0xffff));
+						uint rate = Convert.ToUInt32(param);
 
-				rate = (uint)(response[0] + (response[1] << 8) + (response[2] << 16) + (response[3] << 24));
-				WriteLine(sw, rate.ToString());
+						byte[] response = ReceiveVendorResponse((byte)EVendorRequests.SetSampleRate, 4,
+							(ushort)(rate & 0xffff), (ushort)((rate >> 16) & 0xffff));
+
+						rate = (uint)(response[0] + (response[1] << 8) + (response[2] << 16) + (response[3] << 24));
+						WriteLine(sw, rate.ToString());
+					}
+					break;
+
+				case EDeviceType.DAC_SA:
+				case EDeviceType.ADC_SA:
+					if (s.StartsWith("*W32:"))
+					{
+						string param = s.Split(':')[1];
+
+						SendVendorRequest((byte)EVendorRequests.SetSpiCs, null, 0);
+						try
+						{
+							string[] sarray = param.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+							UInt32 addr = Convert.ToUInt32(sarray[0], sarray[0].StartsWith("0x") ? 16 : 10);
+							UInt32 data = Convert.ToUInt32(sarray[1], sarray[1].StartsWith("0x") ? 16 : 10);
+							avalonPacket.WritePacket(addr, data);
+						}
+						finally
+						{
+							SendVendorRequest((byte)EVendorRequests.SetSpiCs, null, 1);
+						}
+					}
+					else if (s.StartsWith("*R32:"))
+					{
+						string param = s.Split(':')[1];
+
+						SendVendorRequest((byte)EVendorRequests.SetSpiCs, null, 0);
+						try
+						{
+							UInt32 addr = Convert.ToUInt32(param, param.StartsWith("0x") ? 16 : 10);
+							UInt32 data = avalonPacket.ReadPacket(addr);
+							if (param.StartsWith("0x"))
+							{
+								WriteLine(sw, "0x" + data.ToString("x"));
+							}
+							else
+							{
+								WriteLine(sw, data.ToString());
+							}
+						}
+						finally
+						{
+							SendVendorRequest((byte)EVendorRequests.SetSpiCs, null, 1);
+						}
+					}
+					break;
 			}
 		}
 

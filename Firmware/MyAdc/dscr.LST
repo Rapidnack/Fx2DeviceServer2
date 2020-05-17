@@ -1,4 +1,4 @@
-A51 MACRO ASSEMBLER  DSCR                                                                 04/12/2020 09:45:41 PAGE     1
+A51 MACRO ASSEMBLER  DSCR                                                                 05/17/2020 16:55:49 PAGE     1
 
 
 MACRO ASSEMBLER A51 V7.08a
@@ -65,7 +65,7 @@ LOC  OBJ            LINE     SOURCE
 0010 00               54           db   0         ;; Serial number string index
 0011 01               55           db   1         ;; Number of configurations
                       56     
-A51 MACRO ASSEMBLER  DSCR                                                                 04/12/2020 09:45:41 PAGE     2
+A51 MACRO ASSEMBLER  DSCR                                                                 05/17/2020 16:55:49 PAGE     2
 
 0012                  57     DeviceQualDscr:
 0012 0A               58           db   DSCR_DEVQUAL_LEN   ;; Descriptor length
@@ -133,7 +133,7 @@ LOC  OBJ            LINE     SOURCE
 0045 00              120           db   00H               ;; Interface sub sub class
 0046 00              121           db   0               ;; Interface descriptor string index
                      122     
-A51 MACRO ASSEMBLER  DSCR                                                                 04/12/2020 09:45:41 PAGE     3
+A51 MACRO ASSEMBLER  DSCR                                                                 05/17/2020 16:55:49 PAGE     3
 
                      123     ;; Endpoint Descriptor
 0047 07              124           db   DSCR_ENDPNT_LEN      ;; Descriptor length
@@ -181,7 +181,7 @@ LOC  OBJ            LINE     SOURCE
 0070 0000            166           dw   0000H
                      167           end
                                    
-A51 MACRO ASSEMBLER  DSCR                                                                 04/12/2020 09:45:41 PAGE     4
+A51 MACRO ASSEMBLER  DSCR                                                                 05/17/2020 16:55:49 PAGE     4
 
 SYMBOL TABLE LISTING
 ------ ----- -------

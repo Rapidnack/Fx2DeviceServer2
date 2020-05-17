@@ -1,4 +1,4 @@
-C51 COMPILER V7.07   MYADC                                                                 04/12/2020 09:45:41 PAGE 1   
+C51 COMPILER V7.07   MYADC                                                                 05/17/2020 16:55:49 PAGE 1   
 
 
 C51 COMPILER V7.07, COMPILATION OF MODULE MYADC
@@ -51,7 +51,7 @@ stmt level    source
   42   1      
   43   1         EP2FIFOCFG = 0x00; //switching to manual mode
   44   1         SYNCDELAY;
-  45   1         FIFORESET = 0x02; // Reset FIFO 6
+  45   1         FIFORESET = 0x02; // Reset FIFO 2
   46   1         SYNCDELAY;
   47   1         EP2FIFOCFG = 0x08; //switching to auto mode
   48   1         SYNCDELAY;
@@ -62,7 +62,7 @@ stmt level    source
   53   1         EP2GPIFFLGSEL = 2; // GPIF FIFOFlag is full
   54   1         SYNCDELAY;
   55   1      
-C51 COMPILER V7.07   MYADC                                                                 04/12/2020 09:45:41 PAGE 2   
+C51 COMPILER V7.07   MYADC                                                                 05/17/2020 16:55:49 PAGE 2   
 
   56   1         GPIFTCB0 = 1;
   57   1         SYNCDELAY;
@@ -126,7 +126,7 @@ stmt level    source
  115          {
  116   1         return(TRUE);
  117   1      }
-C51 COMPILER V7.07   MYADC                                                                 04/12/2020 09:45:41 PAGE 3   
+C51 COMPILER V7.07   MYADC                                                                 05/17/2020 16:55:49 PAGE 3   
 
  118          
  119          BOOL DR_ClearFeature(void)
@@ -190,7 +190,7 @@ stmt level    source
  177   1      }
  178          
  179          void ISR_Ures(void) interrupt 0
-C51 COMPILER V7.07   MYADC                                                                 04/12/2020 09:45:41 PAGE 4   
+C51 COMPILER V7.07   MYADC                                                                 05/17/2020 16:55:49 PAGE 4   
 
  180          {
  181   1         // whenever we get a USB reset, we should revert to full speed mode
@@ -254,7 +254,7 @@ stmt level    source
  239          {
  240   1      }
  241          void ISR_Ibn(void) interrupt 0
-C51 COMPILER V7.07   MYADC                                                                 04/12/2020 09:45:41 PAGE 5   
+C51 COMPILER V7.07   MYADC                                                                 05/17/2020 16:55:49 PAGE 5   
 
  242          {
  243   1      }
@@ -318,7 +318,7 @@ stmt level    source
  301          void ISR_Ep2fflag(void) interrupt 0
  302          {
  303   1      }
-C51 COMPILER V7.07   MYADC                                                                 04/12/2020 09:45:41 PAGE 6   
+C51 COMPILER V7.07   MYADC                                                                 05/17/2020 16:55:49 PAGE 6   
 
  304          void ISR_Ep4fflag(void) interrupt 0
  305          {

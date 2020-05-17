@@ -90,7 +90,7 @@ void TD_Init(void)             // Called once at startup
 
    EP2FIFOCFG = 0x00; //switching to manual mode
    SYNCDELAY;
-   FIFORESET = 0x02; // Reset FIFO 6
+   FIFORESET = 0x02; // Reset FIFO 2
    SYNCDELAY;
    EP2FIFOCFG = 0x08; //switching to auto mode
    SYNCDELAY;
@@ -202,6 +202,8 @@ BOOL DR_VendorCmnd(void)
 					 + ((unsigned long)SETUPDAT[3] << 8)
 					 + ((unsigned long)SETUPDAT[4] << 16)
 					 + ((unsigned long)SETUPDAT[5] << 24);
+				if (rate == 0)
+					rate = 1;
 				cycles = 48000000 / rate;
 				if (cycles < 4)
 					cycles = 4; // 12MHz

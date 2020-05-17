@@ -52,7 +52,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_86EEE5E31D553E83DF486EF320C381B5"
+        "OwnerKey" = "8:_23273ECDD194A7CAF9A99CDECFBFED08"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -64,7 +64,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_23273ECDD194A7CAF9A99CDECFBFED08"
+        "OwnerKey" = "8:_86EEE5E31D553E83DF486EF320C381B5"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -327,15 +327,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FX2 Device Server"
-        "ProductCode" = "8:{7BBF66D0-1856-4E60-B70D-C79A6981DB5D}"
-        "PackageCode" = "8:{2CD8F0D4-C757-4D8E-9683-276DD5BCC3C6}"
+        "ProductCode" = "8:{6600CC69-4EFC-46C3-B6D9-262E2E7CEADE}"
+        "PackageCode" = "8:{47FDE799-CC84-4C24-8EE9-B729E71DCC73}"
         "UpgradeCode" = "8:{F9CB2944-0A77-4B0F-9DF5-6C78E528E23B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.1.1"
+        "ProductVersion" = "8:1.2.0"
         "Manufacturer" = "8:Rapidnack"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -345,7 +345,7 @@
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:"
-        "ARPPRODUCTICON" = "8:"
+        "ARPPRODUCTICON" = "8:_1B31DD33022D4507B06BBAC8DC301472"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"

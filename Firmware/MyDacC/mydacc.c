@@ -210,6 +210,8 @@ BOOL DR_VendorCmnd(void)
 					 + ((unsigned long)SETUPDAT[3] << 8)
 					 + ((unsigned long)SETUPDAT[4] << 16)
 					 + ((unsigned long)SETUPDAT[5] << 24);
+				if (rate == 0)
+					rate = 1;
 				cycles = 48000000 / rate;
 				if (cycles < 4)
 					cycles = 4; // 12MHz

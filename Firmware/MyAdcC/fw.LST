@@ -1,4 +1,4 @@
-C51 COMPILER V7.07   FW                                                                    05/05/2020 13:42:38 PAGE 1   
+C51 COMPILER V7.07   FW                                                                    05/17/2020 16:50:37 PAGE 1   
 
 
 C51 COMPILER V7.07, COMPILATION OF MODULE FW
@@ -62,7 +62,7 @@ stmt level    source
   53          void TD_Poll(void);
   54          BOOL TD_Suspend(void);
   55          BOOL TD_Resume(void);
-C51 COMPILER V7.07   FW                                                                    05/05/2020 13:42:38 PAGE 2   
+C51 COMPILER V7.07   FW                                                                    05/17/2020 16:50:37 PAGE 2   
 
   56          
   57          BOOL DR_GetDescriptor(void);
@@ -126,7 +126,7 @@ stmt level    source
  115   1         pDeviceDscr = (WORD)&DeviceDscr;
  116   1         pDeviceQualDscr = (WORD)&DeviceQualDscr;
  117   1         pHighSpeedConfigDscr = (WORD)&HighSpeedConfigDscr;
-C51 COMPILER V7.07   FW                                                                    05/05/2020 13:42:38 PAGE 3   
+C51 COMPILER V7.07   FW                                                                    05/17/2020 16:50:37 PAGE 3   
 
  118   1         pFullSpeedConfigDscr = (WORD)&FullSpeedConfigDscr;
  119   1         pStringDscr = (WORD)&StringDscr;
@@ -190,7 +190,7 @@ stmt level    source
  177   2            // Poll User Device
  178   2            TD_Poll();
  179   2      
-C51 COMPILER V7.07   FW                                                                    05/05/2020 13:42:38 PAGE 4   
+C51 COMPILER V7.07   FW                                                                    05/17/2020 16:50:37 PAGE 4   
 
  180   2            // Check for pending SETUP
  181   2            if(GotSUD)
@@ -254,7 +254,7 @@ stmt level    source
  238   3                        SUDPTRH = MSB(pDeviceDscr);
  239   3                        SUDPTRL = LSB(pDeviceDscr);
  240   3                        break;
-C51 COMPILER V7.07   FW                                                                    05/05/2020 13:42:38 PAGE 5   
+C51 COMPILER V7.07   FW                                                                    05/17/2020 16:50:37 PAGE 5   
 
  241   3                     case GD_DEVICE_QUALIFIER:            // Device Qualifier
  242   3                       // only retuen a device qualifier if this is a high speed
@@ -318,7 +318,7 @@ stmt level    source
  300   3                        EP0BUF[1] = 0;
  301   3                        EP0BCH = 0;
  302   3                        EP0BCL = 2;
-C51 COMPILER V7.07   FW                                                                    05/05/2020 13:42:38 PAGE 6   
+C51 COMPILER V7.07   FW                                                                    05/17/2020 16:50:37 PAGE 6   
 
  303   3                        break;
  304   3                     case GS_ENDPOINT:         // End Point
@@ -382,7 +382,7 @@ stmt level    source
  362   2         }
  363   1      
  364   1         // Acknowledge handshake phase of device request
-C51 COMPILER V7.07   FW                                                                    05/05/2020 13:42:38 PAGE 7   
+C51 COMPILER V7.07   FW                                                                    05/17/2020 16:50:37 PAGE 7   
 
  365   1         EP0CS |= bmHSNAK;
  366   1      }

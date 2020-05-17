@@ -17,16 +17,16 @@ namespace Fx2DeviceServer
         public DACDevice(CyUSBDevice usbDevice, MonoUsbProfile usbProfile, EDeviceType deviceType)
             : base(usbDevice, usbProfile, deviceType)
         {
-			if (deviceType == EDeviceType.DAC_C)
+			if (deviceType == EDeviceType.DAC)
+			{
+				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.DeviceParam, 2);
+				dataPortNo = (ushort)(response[0] + (response[1] << 8));
+			}
+			else
 			{
 				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.DeviceParam, 4);
 				dataPortNo = (ushort)(response[0] + (response[1] << 8));
 				ControlPortNo = (ushort)(response[2] + (response[3] << 8));
-			}
-			else
-			{
-				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.DeviceParam, 2);
-				dataPortNo = (ushort)(response[0] + (response[1] << 8));
 			}
 
 			Console.WriteLine($"+ {this}");
@@ -44,7 +44,13 @@ namespace Fx2DeviceServer
                 {
                     while (!ct.IsCancellationRequested)
                     {
-                        TcpClient client = null;
+						if (ControlPortNo > 0 && NumTcpClients == 0)
+						{
+							Thread.Sleep(100);
+							continue;
+						}
+
+						TcpClient client = null;
                         try
                         {
                             client = new TcpClient(RemoteAddress, dataPortNo);

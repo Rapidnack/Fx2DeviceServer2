@@ -56,6 +56,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ADCDevice.cs" />
+    <Compile Include="AvalonPacket.cs" />
+    <Compile Include="AvalonPacketBase.cs" />
+    <Compile Include="IAvalonPacket.cs" />
+    <Compile Include="MonoAvalonPacket.cs" />
     <Compile Include="MonoDeviceServer.cs" />
     <Compile Include="Fx2Device.cs" />
     <Compile Include="Form1.cs">

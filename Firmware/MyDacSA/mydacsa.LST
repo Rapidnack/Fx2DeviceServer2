@@ -1,0 +1,408 @@
+C51 COMPILER V7.07   MYDACSA                                                               05/17/2020 16:53:43 PAGE 1   
+
+
+C51 COMPILER V7.07, COMPILATION OF MODULE MYDACSA
+OBJECT MODULE PLACED IN mydacsa.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE mydacsa.c BROWSE DEBUG OBJECTEXTEND TABS(3)
+
+stmt level    source
+
+   1          #pragma NOIV               // Do not generate interrupt vectors
+   2          
+   3          #include "fx2.h"
+   4          #include "fx2regs.h"
+   5          #include "syncdly.h"            // SYNCDELAY macro
+   6          
+   7          extern BOOL GotSUD;             // Received setup data flag
+   8          extern BOOL Sleep;
+   9          extern BOOL Rwuen;
+  10          extern BOOL Selfpwr;
+  11          
+  12          BYTE Configuration;             // Current configuration
+  13          BYTE AlternateSetting;          // Alternate settings
+  14          
+  15          #define VENDOR_DEVICE_TYPE 0xC0
+  16          #define VENDOR_DEVICE_PARAM 0xC1
+  17          #define SET_SPI_CS 0xC3
+  18          
+  19          #define DEVICE_TYPE 0x05
+  20          #define DATA_PORT_NO 52005
+  21          #define CONTROL_PORT_NO 53005
+  22          
+  23          #define SPI_CS  PA7
+  24          #define SPI_CLK PA3
+  25          #define MISO    PA1
+  26          #define MOSI    PA0
+  27          
+  28          //-----------------------------------------------------------------------------
+  29          // Task Dispatcher hooks
+  30          //   The following hooks are called by the task dispatcher.
+  31          //-----------------------------------------------------------------------------
+  32          
+  33          BYTE SPIXferByte(BYTE b)
+  34          {
+  35   1         // SPI mode 1
+  36   1      
+  37   1         BYTE val = 0x00;
+  38   1         BYTE mask = 0x80;
+  39   1         int i;
+  40   1      
+  41   1         for (i = 0; i < 8; i++)
+  42   1         {
+  43   2            if (b & mask) MOSI = 1; else MOSI = 0;
+  44   2            SPI_CLK = 1;
+  45   2            if (MISO == 1) val |= mask;
+  46   2            SPI_CLK = 0;
+  47   2            mask >>= 1;
+  48   2         }
+  49   1         return(val);
+  50   1      }
+  51          
+  52          void TD_Init(void)             // Called once at startup
+  53          {
+  54   1         CPUCS = ((CPUCS & ~bmCLKSPD) | bmCLKSPD1) ; // 48 MHz CPU clock
+  55   1      
+C51 COMPILER V7.07   MYDACSA                                                               05/17/2020 16:53:43 PAGE 2   
+
+  56   1         REVCTL = 0x03; // REVCTL.0 and REVCTL.1 set to 1
+  57   1         SYNCDELAY;
+  58   1      
+  59   1      
+  60   1         EP1OUTCFG = 0xA0;
+  61   1         EP1INCFG = 0xA0;
+  62   1      
+  63   1         // out endpoints do not come up armed
+  64   1         EP1OUTBC = 0x00; // arm EP1OUT by writing any value
+  65   1         SYNCDELAY;
+  66   1      
+  67   1         // bit-bang SPI
+  68   1         OEA = 0x89; // 1xxx_1x01
+  69   1         SPI_CS = 1;
+  70   1         SPI_CLK = 0;
+  71   1         MOSI = 0;
+  72   1      
+  73   1      
+  74   1         EP2CFG = 0xA8; // OUT, Bulk, 1024, Quad
+  75   1      
+  76   1         IFCONFIG = 0x43; // slave FIFO interface, external IFCLK
+  77   1      
+  78   1         FIFORESET = 0x80; // Reset the FIFO
+  79   1         SYNCDELAY;
+  80   1         FIFORESET = 0x82;
+  81   1         SYNCDELAY;
+  82   1         FIFORESET = 0x00;
+  83   1         SYNCDELAY;
+  84   1      
+  85   1         OUTPKTEND = 0X82; //OUTPKTEND done four times as EP2 is quad buffered
+  86   1         SYNCDELAY;
+  87   1         OUTPKTEND = 0X82;
+  88   1         SYNCDELAY;
+  89   1         OUTPKTEND = 0X82;
+  90   1         SYNCDELAY;
+  91   1         OUTPKTEND = 0X82;
+  92   1         SYNCDELAY;
+  93   1      
+  94   1         EP2FIFOCFG = 0x10; // EP2 is AUTOOUT=1, AUTOIN=0, ZEROLEN=0, WORDWIDE=0
+  95   1      }
+  96          
+  97          void TD_Poll(void)              // Called repeatedly while the device is idle
+  98          {
+  99   1         // bit-bang SPI
+ 100   1         if (!(EP01STAT & bmBIT1))
+ 101   1         {
+ 102   2            BYTE count = EP1OUTBC;
+ 103   2            BYTE i;
+ 104   2      
+ 105   2            for( i = 0; i < count; i++ )
+ 106   2            {
+ 107   3               EP1INBUF[i] = SPIXferByte(EP1OUTBUF[i]);
+ 108   3            }
+ 109   2      
+ 110   2            EP1INBC = EP1OUTBC;       // arm EP1IN
+ 111   2            EP1OUTBC = 0x00;          // re(arm) EP1OUT by writing any value
+ 112   2         }
+ 113   1      }
+ 114          
+ 115          BOOL TD_Suspend(void)          // Called before the device goes into suspend mode
+ 116          {
+ 117   1         return(TRUE);
+C51 COMPILER V7.07   MYDACSA                                                               05/17/2020 16:53:43 PAGE 3   
+
+ 118   1      }
+ 119          
+ 120          BOOL TD_Resume(void)          // Called after the device resumes
+ 121          {
+ 122   1         return(TRUE);
+ 123   1      }
+ 124          
+ 125          //-----------------------------------------------------------------------------
+ 126          // Device Request hooks
+ 127          //   The following hooks are called by the end point 0 device request parser.
+ 128          //-----------------------------------------------------------------------------
+ 129          
+ 130          BOOL DR_GetDescriptor(void)
+ 131          {
+ 132   1         return(TRUE);
+ 133   1      }
+ 134          
+ 135          BOOL DR_SetConfiguration(void)   // Called when a Set Configuration command is received
+ 136          {
+ 137   1         Configuration = SETUPDAT[2];
+ 138   1         return(TRUE);            // Handled by user code
+ 139   1      }
+ 140          
+ 141          BOOL DR_GetConfiguration(void)   // Called when a Get Configuration command is received
+ 142          {
+ 143   1         EP0BUF[0] = Configuration;
+ 144   1         EP0BCH = 0;
+ 145   1         EP0BCL = 1;
+ 146   1         return(TRUE);            // Handled by user code
+ 147   1      }
+ 148          
+ 149          BOOL DR_SetInterface(void)       // Called when a Set Interface command is received
+ 150          {
+ 151   1         AlternateSetting = SETUPDAT[2];
+ 152   1         return(TRUE);            // Handled by user code
+ 153   1      }
+ 154          
+ 155          BOOL DR_GetInterface(void)       // Called when a Set Interface command is received
+ 156          {
+ 157   1         EP0BUF[0] = AlternateSetting;
+ 158   1         EP0BCH = 0;
+ 159   1         EP0BCL = 1;
+ 160   1         return(TRUE);            // Handled by user code
+ 161   1      }
+ 162          
+ 163          BOOL DR_GetStatus(void)
+ 164          {
+ 165   1         return(TRUE);
+ 166   1      }
+ 167          
+ 168          BOOL DR_ClearFeature(void)
+ 169          {
+ 170   1         return(TRUE);
+ 171   1      }
+ 172          
+ 173          BOOL DR_SetFeature(void)
+ 174          {
+ 175   1         return(TRUE);
+ 176   1      }
+ 177          
+ 178          BOOL DR_VendorCmnd(void)
+ 179          {
+C51 COMPILER V7.07   MYDACSA                                                               05/17/2020 16:53:43 PAGE 4   
+
+ 180   1         switch (SETUPDAT[1])
+ 181   1         {
+ 182   2            case VENDOR_DEVICE_TYPE:
+ 183   2               EP0BUF[0] = DEVICE_TYPE;
+ 184   2               EP0BCH = 0;
+ 185   2               EP0BCL = 1;
+ 186   2               break;
+ 187   2      
+ 188   2            case VENDOR_DEVICE_PARAM:
+ 189   2               EP0BUF[0] = DATA_PORT_NO & 0xFF;
+ 190   2               EP0BUF[1] = (DATA_PORT_NO >> 8) & 0xFF;
+ 191   2               EP0BUF[2] = CONTROL_PORT_NO & 0xFF;
+ 192   2               EP0BUF[3] = (CONTROL_PORT_NO >> 8) & 0xFF;
+ 193   2               EP0BCH = 0;
+ 194   2               EP0BCL = 4;
+ 195   2               break;
+ 196   2      
+ 197   2            case SET_SPI_CS:
+ 198   2               SPI_CS = SETUPDAT[2] & 0x01;
+ 199   2               break;
+ 200   2      
+ 201   2            default:
+ 202   2               return(TRUE);
+ 203   2         }
+ 204   1      
+ 205   1         return(FALSE);
+ 206   1      }
+ 207          
+ 208          //-----------------------------------------------------------------------------
+ 209          // USB Interrupt Handlers
+ 210          //   The following functions are called by the USB interrupt jump table.
+ 211          //-----------------------------------------------------------------------------
+ 212          
+ 213          // Setup Data Available Interrupt Handler
+ 214          void ISR_Sudav(void) interrupt 0
+ 215          {
+ 216   1         GotSUD = TRUE;            // Set flag
+ 217   1         EZUSB_IRQ_CLEAR();
+ 218   1         USBIRQ = bmSUDAV;         // Clear SUDAV IRQ
+ 219   1      }
+ 220          
+ 221          // Setup Token Interrupt Handler
+ 222          void ISR_Sutok(void) interrupt 0
+ 223          {
+ 224   1         EZUSB_IRQ_CLEAR();
+ 225   1         USBIRQ = bmSUTOK;         // Clear SUTOK IRQ
+ 226   1      }
+ 227          
+ 228          void ISR_Sof(void) interrupt 0
+ 229          {
+ 230   1         EZUSB_IRQ_CLEAR();
+ 231   1         USBIRQ = bmSOF;            // Clear SOF IRQ
+ 232   1      }
+ 233          
+ 234          void ISR_Ures(void) interrupt 0
+ 235          {
+ 236   1         // whenever we get a USB reset, we should revert to full speed mode
+ 237   1         pConfigDscr = pFullSpeedConfigDscr;
+ 238   1         ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 239   1         pOtherConfigDscr = pHighSpeedConfigDscr;
+ 240   1         ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 241   1      
+C51 COMPILER V7.07   MYDACSA                                                               05/17/2020 16:53:43 PAGE 5   
+
+ 242   1         EZUSB_IRQ_CLEAR();
+ 243   1         USBIRQ = bmURES;         // Clear URES IRQ
+ 244   1      }
+ 245          
+ 246          void ISR_Susp(void) interrupt 0
+ 247          {
+ 248   1         Sleep = TRUE;
+ 249   1         EZUSB_IRQ_CLEAR();
+ 250   1         USBIRQ = bmSUSP;
+ 251   1      }
+ 252          
+ 253          void ISR_Highspeed(void) interrupt 0
+ 254          {
+ 255   1         if (EZUSB_HIGHSPEED())
+ 256   1         {
+ 257   2            pConfigDscr = pHighSpeedConfigDscr;
+ 258   2            ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 259   2            pOtherConfigDscr = pFullSpeedConfigDscr;
+ 260   2            ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 261   2         }
+ 262   1      
+ 263   1         EZUSB_IRQ_CLEAR();
+ 264   1         USBIRQ = bmHSGRANT;
+ 265   1      }
+ 266          void ISR_Ep0ack(void) interrupt 0
+ 267          {
+ 268   1      }
+ 269          void ISR_Stub(void) interrupt 0
+ 270          {
+ 271   1      }
+ 272          void ISR_Ep0in(void) interrupt 0
+ 273          {
+ 274   1      }
+ 275          void ISR_Ep0out(void) interrupt 0
+ 276          {
+ 277   1      }
+ 278          void ISR_Ep1in(void) interrupt 0
+ 279          {
+ 280   1      }
+ 281          void ISR_Ep1out(void) interrupt 0
+ 282          {
+ 283   1      }
+ 284          void ISR_Ep2inout(void) interrupt 0
+ 285          {
+ 286   1      }
+ 287          void ISR_Ep4inout(void) interrupt 0
+ 288          {
+ 289   1      }
+ 290          void ISR_Ep6inout(void) interrupt 0
+ 291          {
+ 292   1      }
+ 293          void ISR_Ep8inout(void) interrupt 0
+ 294          {
+ 295   1      }
+ 296          void ISR_Ibn(void) interrupt 0
+ 297          {
+ 298   1      }
+ 299          void ISR_Ep0pingnak(void) interrupt 0
+ 300          {
+ 301   1      }
+ 302          void ISR_Ep1pingnak(void) interrupt 0
+ 303          {
+C51 COMPILER V7.07   MYDACSA                                                               05/17/2020 16:53:43 PAGE 6   
+
+ 304   1      }
+ 305          void ISR_Ep2pingnak(void) interrupt 0
+ 306          {
+ 307   1      }
+ 308          void ISR_Ep4pingnak(void) interrupt 0
+ 309          {
+ 310   1      }
+ 311          void ISR_Ep6pingnak(void) interrupt 0
+ 312          {
+ 313   1      }
+ 314          void ISR_Ep8pingnak(void) interrupt 0
+ 315          {
+ 316   1      }
+ 317          void ISR_Errorlimit(void) interrupt 0
+ 318          {
+ 319   1      }
+ 320          void ISR_Ep2piderror(void) interrupt 0
+ 321          {
+ 322   1      }
+ 323          void ISR_Ep4piderror(void) interrupt 0
+ 324          {
+ 325   1      }
+ 326          void ISR_Ep6piderror(void) interrupt 0
+ 327          {
+ 328   1      }
+ 329          void ISR_Ep8piderror(void) interrupt 0
+ 330          {
+ 331   1      }
+ 332          void ISR_Ep2pflag(void) interrupt 0
+ 333          {
+ 334   1      }
+ 335          void ISR_Ep4pflag(void) interrupt 0
+ 336          {
+ 337   1      }
+ 338          void ISR_Ep6pflag(void) interrupt 0
+ 339          {
+ 340   1      }
+ 341          void ISR_Ep8pflag(void) interrupt 0
+ 342          {
+ 343   1      }
+ 344          void ISR_Ep2eflag(void) interrupt 0
+ 345          {
+ 346   1      }
+ 347          void ISR_Ep4eflag(void) interrupt 0
+ 348          {
+ 349   1      }
+ 350          void ISR_Ep6eflag(void) interrupt 0
+ 351          {
+ 352   1      }
+ 353          void ISR_Ep8eflag(void) interrupt 0
+ 354          {
+ 355   1      }
+ 356          void ISR_Ep2fflag(void) interrupt 0
+ 357          {
+ 358   1      }
+ 359          void ISR_Ep4fflag(void) interrupt 0
+ 360          {
+ 361   1      }
+ 362          void ISR_Ep6fflag(void) interrupt 0
+ 363          {
+ 364   1      }
+ 365          void ISR_Ep8fflag(void) interrupt 0
+C51 COMPILER V7.07   MYDACSA                                                               05/17/2020 16:53:43 PAGE 7   
+
+ 366          {
+ 367   1      }
+ 368          void ISR_GpifComplete(void) interrupt 0
+ 369          {
+ 370   1      }
+ 371          void ISR_GpifWaveform(void) interrupt 0
+ 372          {
+ 373   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    602    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

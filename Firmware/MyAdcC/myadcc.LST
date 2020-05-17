@@ -1,4 +1,4 @@
-C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 1   
+C51 COMPILER V7.07   MYADCC                                                                05/17/2020 16:50:37 PAGE 1   
 
 
 C51 COMPILER V7.07, COMPILATION OF MODULE MYADCC
@@ -62,7 +62,7 @@ stmt level    source
   53   1         {
   54   2            EXTAUTODAT1 = EXTAUTODAT2;
   55   2         }
-C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 2   
+C51 COMPILER V7.07   MYADCC                                                                05/17/2020 16:50:37 PAGE 2   
 
   56   1      
   57   1         for ( i = 0; i < sizeof StateCycle; i++ )
@@ -101,7 +101,7 @@ stmt level    source
   90   1      
   91   1         EP2FIFOCFG = 0x00; //switching to manual mode
   92   1         SYNCDELAY;
-  93   1         FIFORESET = 0x02; // Reset FIFO 6
+  93   1         FIFORESET = 0x02; // Reset FIFO 2
   94   1         SYNCDELAY;
   95   1         EP2FIFOCFG = 0x08; //switching to auto mode
   96   1         SYNCDELAY;
@@ -126,7 +126,7 @@ stmt level    source
  115          {
  116   1         return(TRUE);
  117   1      }
-C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 3   
+C51 COMPILER V7.07   MYADCC                                                                05/17/2020 16:50:37 PAGE 3   
 
  118          
  119          BOOL TD_Resume(void)          // Called after the device resumes
@@ -190,7 +190,7 @@ stmt level    source
  177          BOOL DR_VendorCmnd(void)
  178          {
  179   1         switch (SETUPDAT[1])
-C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 4   
+C51 COMPILER V7.07   MYADCC                                                                05/17/2020 16:50:37 PAGE 4   
 
  180   1         {
  181   2            case VENDOR_DEVICE_TYPE:
@@ -217,226 +217,228 @@ stmt level    source
  202   3                      + ((unsigned long)SETUPDAT[3] << 8)
  203   3                      + ((unsigned long)SETUPDAT[4] << 16)
  204   3                      + ((unsigned long)SETUPDAT[5] << 24);
- 205   3                  cycles = 48000000 / rate;
- 206   3                  if (cycles < 4)
- 207   3                     cycles = 4; // 12MHz
- 208   3                  if (cycles > 500)
- 209   3                     cycles = 500; // 96kHz
- 210   3                  if (cycles % 2 == 0)
- 211   3                  {
- 212   4                     StateCycle[0] = (cycles / 2) - 1;
- 213   4                     StateCycle[2] = (cycles / 2) - 1;
- 214   4                  }
- 215   3                  else
- 216   3                  {
- 217   4                     StateCycle[0] = (cycles / 2) - 1;
- 218   4                     StateCycle[2] = (cycles / 2);
- 219   4                  }
- 220   3                  rate = GetRate();
- 221   3      
- 222   3                  GPIFABORT = 0xFF; // abort any waveforms pending
- 223   3                  while( !( GPIFTRIG & 0x80 ) ) // poll GPIFTRIG.7 Done bit
- 224   3                     ;
- 225   3      
- 226   3                  ChangeStateCycle();
+ 205   3                  if (rate == 0)
+ 206   3                     rate = 1;
+ 207   3                  cycles = 48000000 / rate;
+ 208   3                  if (cycles < 4)
+ 209   3                     cycles = 4; // 12MHz
+ 210   3                  if (cycles > 500)
+ 211   3                     cycles = 500; // 96kHz
+ 212   3                  if (cycles % 2 == 0)
+ 213   3                  {
+ 214   4                     StateCycle[0] = (cycles / 2) - 1;
+ 215   4                     StateCycle[2] = (cycles / 2) - 1;
+ 216   4                  }
+ 217   3                  else
+ 218   3                  {
+ 219   4                     StateCycle[0] = (cycles / 2) - 1;
+ 220   4                     StateCycle[2] = (cycles / 2);
+ 221   4                  }
+ 222   3                  rate = GetRate();
+ 223   3      
+ 224   3                  GPIFABORT = 0xFF; // abort any waveforms pending
+ 225   3                  while( !( GPIFTRIG & 0x80 ) ) // poll GPIFTRIG.7 Done bit
+ 226   3                     ;
  227   3      
- 228   3                  GPIFTCB0 = 1;
- 229   3                  SYNCDELAY;
- 230   3                  // trigger FIFO read transactions, using SFR
- 231   3                  GPIFTRIG = bmBIT2 | 0; // R/W=1, EP[1:0]=FIFO_EpNum
- 232   3      
- 233   3                  EP0BUF[0] = rate & 0xFF;
- 234   3                  EP0BUF[1] = (rate >> 8) & 0xFF;
- 235   3                  EP0BUF[2] = (rate >> 16) & 0xFF;
- 236   3                  EP0BUF[3] = (rate >> 24) & 0xFF;
- 237   3                  EP0BCH = 0;
- 238   3                  EP0BCL = 4;
- 239   3               }
- 240   2               break;
- 241   2      
-C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 5   
+ 228   3                  ChangeStateCycle();
+ 229   3      
+ 230   3                  GPIFTCB0 = 1;
+ 231   3                  SYNCDELAY;
+ 232   3                  // trigger FIFO read transactions, using SFR
+ 233   3                  GPIFTRIG = bmBIT2 | 0; // R/W=1, EP[1:0]=FIFO_EpNum
+ 234   3      
+ 235   3                  EP0BUF[0] = rate & 0xFF;
+ 236   3                  EP0BUF[1] = (rate >> 8) & 0xFF;
+ 237   3                  EP0BUF[2] = (rate >> 16) & 0xFF;
+ 238   3                  EP0BUF[3] = (rate >> 24) & 0xFF;
+ 239   3                  EP0BCH = 0;
+ 240   3                  EP0BCL = 4;
+ 241   3               }
+C51 COMPILER V7.07   MYADCC                                                                05/17/2020 16:50:37 PAGE 5   
 
- 242   2            default:
- 243   2               return(TRUE);
- 244   2         }
- 245   1      
- 246   1         return(FALSE);
- 247   1      }
- 248          
- 249          //-----------------------------------------------------------------------------
- 250          // USB Interrupt Handlers
- 251          //   The following functions are called by the USB interrupt jump table.
- 252          //-----------------------------------------------------------------------------
- 253          
- 254          // Setup Data Available Interrupt Handler
- 255          void ISR_Sudav(void) interrupt 0
- 256          {
- 257   1         GotSUD = TRUE;            // Set flag
- 258   1         EZUSB_IRQ_CLEAR();
- 259   1         USBIRQ = bmSUDAV;         // Clear SUDAV IRQ
- 260   1      }
- 261          
- 262          // Setup Token Interrupt Handler
- 263          void ISR_Sutok(void) interrupt 0
- 264          {
- 265   1         EZUSB_IRQ_CLEAR();
- 266   1         USBIRQ = bmSUTOK;         // Clear SUTOK IRQ
- 267   1      }
- 268          
- 269          void ISR_Sof(void) interrupt 0
- 270          {
- 271   1         EZUSB_IRQ_CLEAR();
- 272   1         USBIRQ = bmSOF;            // Clear SOF IRQ
- 273   1      }
- 274          
- 275          void ISR_Ures(void) interrupt 0
- 276          {
- 277   1         // whenever we get a USB reset, we should revert to full speed mode
- 278   1         pConfigDscr = pFullSpeedConfigDscr;
- 279   1         ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
- 280   1         pOtherConfigDscr = pHighSpeedConfigDscr;
- 281   1         ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
- 282   1      
- 283   1         EZUSB_IRQ_CLEAR();
- 284   1         USBIRQ = bmURES;         // Clear URES IRQ
- 285   1      }
- 286          
- 287          void ISR_Susp(void) interrupt 0
- 288          {
- 289   1         Sleep = TRUE;
- 290   1         EZUSB_IRQ_CLEAR();
- 291   1         USBIRQ = bmSUSP;
- 292   1      }
- 293          
- 294          void ISR_Highspeed(void) interrupt 0
- 295          {
- 296   1         if (EZUSB_HIGHSPEED())
- 297   1         {
- 298   2            pConfigDscr = pHighSpeedConfigDscr;
- 299   2            ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
- 300   2            pOtherConfigDscr = pFullSpeedConfigDscr;
- 301   2            ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
- 302   2         }
- 303   1      
-C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 6   
+ 242   2               break;
+ 243   2      
+ 244   2            default:
+ 245   2               return(TRUE);
+ 246   2         }
+ 247   1      
+ 248   1         return(FALSE);
+ 249   1      }
+ 250          
+ 251          //-----------------------------------------------------------------------------
+ 252          // USB Interrupt Handlers
+ 253          //   The following functions are called by the USB interrupt jump table.
+ 254          //-----------------------------------------------------------------------------
+ 255          
+ 256          // Setup Data Available Interrupt Handler
+ 257          void ISR_Sudav(void) interrupt 0
+ 258          {
+ 259   1         GotSUD = TRUE;            // Set flag
+ 260   1         EZUSB_IRQ_CLEAR();
+ 261   1         USBIRQ = bmSUDAV;         // Clear SUDAV IRQ
+ 262   1      }
+ 263          
+ 264          // Setup Token Interrupt Handler
+ 265          void ISR_Sutok(void) interrupt 0
+ 266          {
+ 267   1         EZUSB_IRQ_CLEAR();
+ 268   1         USBIRQ = bmSUTOK;         // Clear SUTOK IRQ
+ 269   1      }
+ 270          
+ 271          void ISR_Sof(void) interrupt 0
+ 272          {
+ 273   1         EZUSB_IRQ_CLEAR();
+ 274   1         USBIRQ = bmSOF;            // Clear SOF IRQ
+ 275   1      }
+ 276          
+ 277          void ISR_Ures(void) interrupt 0
+ 278          {
+ 279   1         // whenever we get a USB reset, we should revert to full speed mode
+ 280   1         pConfigDscr = pFullSpeedConfigDscr;
+ 281   1         ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 282   1         pOtherConfigDscr = pHighSpeedConfigDscr;
+ 283   1         ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+ 284   1      
+ 285   1         EZUSB_IRQ_CLEAR();
+ 286   1         USBIRQ = bmURES;         // Clear URES IRQ
+ 287   1      }
+ 288          
+ 289          void ISR_Susp(void) interrupt 0
+ 290          {
+ 291   1         Sleep = TRUE;
+ 292   1         EZUSB_IRQ_CLEAR();
+ 293   1         USBIRQ = bmSUSP;
+ 294   1      }
+ 295          
+ 296          void ISR_Highspeed(void) interrupt 0
+ 297          {
+ 298   1         if (EZUSB_HIGHSPEED())
+ 299   1         {
+ 300   2            pConfigDscr = pHighSpeedConfigDscr;
+ 301   2            ((CONFIGDSCR xdata *) pConfigDscr)->type = CONFIG_DSCR;
+ 302   2            pOtherConfigDscr = pFullSpeedConfigDscr;
+ 303   2            ((CONFIGDSCR xdata *) pOtherConfigDscr)->type = OTHERSPEED_DSCR;
+C51 COMPILER V7.07   MYADCC                                                                05/17/2020 16:50:37 PAGE 6   
 
- 304   1         EZUSB_IRQ_CLEAR();
- 305   1         USBIRQ = bmHSGRANT;
- 306   1      }
- 307          void ISR_Ep0ack(void) interrupt 0
- 308          {
- 309   1      }
- 310          void ISR_Stub(void) interrupt 0
- 311          {
- 312   1      }
- 313          void ISR_Ep0in(void) interrupt 0
- 314          {
- 315   1      }
- 316          void ISR_Ep0out(void) interrupt 0
- 317          {
- 318   1      }
- 319          void ISR_Ep1in(void) interrupt 0
- 320          {
- 321   1      }
- 322          void ISR_Ep1out(void) interrupt 0
- 323          {
- 324   1      }
- 325          void ISR_Ep2inout(void) interrupt 0
- 326          {
- 327   1      }
- 328          void ISR_Ep4inout(void) interrupt 0
- 329          {
- 330   1      }
- 331          void ISR_Ep6inout(void) interrupt 0
- 332          {
- 333   1      }
- 334          void ISR_Ep8inout(void) interrupt 0
- 335          {
- 336   1      }
- 337          void ISR_Ibn(void) interrupt 0
- 338          {
- 339   1      }
- 340          void ISR_Ep0pingnak(void) interrupt 0
- 341          {
- 342   1      }
- 343          void ISR_Ep1pingnak(void) interrupt 0
- 344          {
- 345   1      }
- 346          void ISR_Ep2pingnak(void) interrupt 0
- 347          {
- 348   1      }
- 349          void ISR_Ep4pingnak(void) interrupt 0
- 350          {
- 351   1      }
- 352          void ISR_Ep6pingnak(void) interrupt 0
- 353          {
- 354   1      }
- 355          void ISR_Ep8pingnak(void) interrupt 0
- 356          {
- 357   1      }
- 358          void ISR_Errorlimit(void) interrupt 0
- 359          {
- 360   1      }
- 361          void ISR_Ep2piderror(void) interrupt 0
- 362          {
- 363   1      }
- 364          void ISR_Ep4piderror(void) interrupt 0
- 365          {
-C51 COMPILER V7.07   MYADCC                                                                05/05/2020 13:42:39 PAGE 7   
+ 304   2         }
+ 305   1      
+ 306   1         EZUSB_IRQ_CLEAR();
+ 307   1         USBIRQ = bmHSGRANT;
+ 308   1      }
+ 309          void ISR_Ep0ack(void) interrupt 0
+ 310          {
+ 311   1      }
+ 312          void ISR_Stub(void) interrupt 0
+ 313          {
+ 314   1      }
+ 315          void ISR_Ep0in(void) interrupt 0
+ 316          {
+ 317   1      }
+ 318          void ISR_Ep0out(void) interrupt 0
+ 319          {
+ 320   1      }
+ 321          void ISR_Ep1in(void) interrupt 0
+ 322          {
+ 323   1      }
+ 324          void ISR_Ep1out(void) interrupt 0
+ 325          {
+ 326   1      }
+ 327          void ISR_Ep2inout(void) interrupt 0
+ 328          {
+ 329   1      }
+ 330          void ISR_Ep4inout(void) interrupt 0
+ 331          {
+ 332   1      }
+ 333          void ISR_Ep6inout(void) interrupt 0
+ 334          {
+ 335   1      }
+ 336          void ISR_Ep8inout(void) interrupt 0
+ 337          {
+ 338   1      }
+ 339          void ISR_Ibn(void) interrupt 0
+ 340          {
+ 341   1      }
+ 342          void ISR_Ep0pingnak(void) interrupt 0
+ 343          {
+ 344   1      }
+ 345          void ISR_Ep1pingnak(void) interrupt 0
+ 346          {
+ 347   1      }
+ 348          void ISR_Ep2pingnak(void) interrupt 0
+ 349          {
+ 350   1      }
+ 351          void ISR_Ep4pingnak(void) interrupt 0
+ 352          {
+ 353   1      }
+ 354          void ISR_Ep6pingnak(void) interrupt 0
+ 355          {
+ 356   1      }
+ 357          void ISR_Ep8pingnak(void) interrupt 0
+ 358          {
+ 359   1      }
+ 360          void ISR_Errorlimit(void) interrupt 0
+ 361          {
+ 362   1      }
+ 363          void ISR_Ep2piderror(void) interrupt 0
+ 364          {
+ 365   1      }
+C51 COMPILER V7.07   MYADCC                                                                05/17/2020 16:50:37 PAGE 7   
 
- 366   1      }
- 367          void ISR_Ep6piderror(void) interrupt 0
- 368          {
- 369   1      }
- 370          void ISR_Ep8piderror(void) interrupt 0
- 371          {
- 372   1      }
- 373          void ISR_Ep2pflag(void) interrupt 0
- 374          {
- 375   1      }
- 376          void ISR_Ep4pflag(void) interrupt 0
- 377          {
- 378   1      }
- 379          void ISR_Ep6pflag(void) interrupt 0
- 380          {
- 381   1      }
- 382          void ISR_Ep8pflag(void) interrupt 0
- 383          {
- 384   1      }
- 385          void ISR_Ep2eflag(void) interrupt 0
- 386          {
- 387   1      }
- 388          void ISR_Ep4eflag(void) interrupt 0
- 389          {
- 390   1      }
- 391          void ISR_Ep6eflag(void) interrupt 0
- 392          {
- 393   1      }
- 394          void ISR_Ep8eflag(void) interrupt 0
- 395          {
- 396   1      }
- 397          void ISR_Ep2fflag(void) interrupt 0
- 398          {
- 399   1      }
- 400          void ISR_Ep4fflag(void) interrupt 0
- 401          {
- 402   1      }
- 403          void ISR_Ep6fflag(void) interrupt 0
- 404          {
- 405   1      }
- 406          void ISR_Ep8fflag(void) interrupt 0
- 407          {
- 408   1      }
- 409          void ISR_GpifComplete(void) interrupt 0
- 410          {
- 411   1      }
- 412          void ISR_GpifWaveform(void) interrupt 0
- 413          {
- 414   1      }
+ 366          void ISR_Ep4piderror(void) interrupt 0
+ 367          {
+ 368   1      }
+ 369          void ISR_Ep6piderror(void) interrupt 0
+ 370          {
+ 371   1      }
+ 372          void ISR_Ep8piderror(void) interrupt 0
+ 373          {
+ 374   1      }
+ 375          void ISR_Ep2pflag(void) interrupt 0
+ 376          {
+ 377   1      }
+ 378          void ISR_Ep4pflag(void) interrupt 0
+ 379          {
+ 380   1      }
+ 381          void ISR_Ep6pflag(void) interrupt 0
+ 382          {
+ 383   1      }
+ 384          void ISR_Ep8pflag(void) interrupt 0
+ 385          {
+ 386   1      }
+ 387          void ISR_Ep2eflag(void) interrupt 0
+ 388          {
+ 389   1      }
+ 390          void ISR_Ep4eflag(void) interrupt 0
+ 391          {
+ 392   1      }
+ 393          void ISR_Ep6eflag(void) interrupt 0
+ 394          {
+ 395   1      }
+ 396          void ISR_Ep8eflag(void) interrupt 0
+ 397          {
+ 398   1      }
+ 399          void ISR_Ep2fflag(void) interrupt 0
+ 400          {
+ 401   1      }
+ 402          void ISR_Ep4fflag(void) interrupt 0
+ 403          {
+ 404   1      }
+ 405          void ISR_Ep6fflag(void) interrupt 0
+ 406          {
+ 407   1      }
+ 408          void ISR_Ep8fflag(void) interrupt 0
+ 409          {
+ 410   1      }
+ 411          void ISR_GpifComplete(void) interrupt 0
+ 412          {
+ 413   1      }
+ 414          void ISR_GpifWaveform(void) interrupt 0
+ 415          {
+ 416   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    992    ----
+   CODE SIZE        =   1021    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----     128
    PDATA SIZE       =   ----    ----
@@ -444,6 +446,8 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
+
+C51 COMPILER V7.07   MYADCC                                                                05/17/2020 16:50:37 PAGE 8   
 
 
 C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

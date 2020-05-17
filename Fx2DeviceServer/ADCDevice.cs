@@ -16,16 +16,16 @@ namespace Fx2DeviceServer
         public ADCDevice(CyUSBDevice usbDevice, MonoUsbProfile usbProfile, EDeviceType deviceType)
             : base(usbDevice, usbProfile, deviceType)
         {
-			if (deviceType == EDeviceType.ADC_C)
+			if (deviceType == EDeviceType.ADC)
+			{
+				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.DeviceParam, 2);
+				dataPortNo = (ushort)(response[0] + (response[1] << 8));
+			}
+			else
 			{
 				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.DeviceParam, 4);
 				dataPortNo = (ushort)(response[0] + (response[1] << 8));
 				ControlPortNo = (ushort)(response[2] + (response[3] << 8));
-			}
-			else
-			{
-				byte[] response = ReceiveVendorResponse((byte)EVendorRequests.DeviceParam, 2);
-				dataPortNo = (ushort)(response[0] + (response[1] << 8));
 			}
 
 			Console.WriteLine($"+ {this}");
@@ -39,71 +39,82 @@ namespace Fx2DeviceServer
             var ct = Cts.Token;
             Task.Run(() =>
             {
-                UdpClient udp = new UdpClient();
-                try
-                {
-                    int maxPacketSize;
-                    if (USBDevice != null)
-                    {
-                        maxPacketSize = endpoint2.MaxPktSize;
-                    }
-                    else
-                    {
-                        maxPacketSize = MonoUsbApi.GetMaxPacketSize(USBProfile.ProfileHandle, 0x82);
-                    }
-                    byte[] inData = new byte[maxPacketSize];
-                    byte[] outData = null;
-                    int outDataPos = 0;
+				while (!ct.IsCancellationRequested)
+				{
+					if (ControlPortNo > 0 && NumTcpClients == 0)
+					{
+						Thread.Sleep(100);
+						continue;
+					}
 
-                    while (!ct.IsCancellationRequested)
-                    {
-                        int xferLen = inData.Length;
-                        bool ret = false;
-                        if (USBDevice != null)
-                        {
-                            ret = endpoint2.XferData(ref inData, ref xferLen);
-                        }
-                        else
-                        {
-                            ret = MonoUsbApi.BulkTransfer(MonoDeviceHandle, 0x82, inData, inData.Length, out xferLen, TIMEOUT) == 0;
-                        }
-                        if (ret == false)
-                            break;
+					UdpClient udp = new UdpClient();
+					try
+					{
+						int maxPacketSize;
+						if (USBDevice != null)
+						{
+							maxPacketSize = endpoint2.MaxPktSize;
+						}
+						else
+						{
+							maxPacketSize = MonoUsbApi.GetMaxPacketSize(USBProfile.ProfileHandle, 0x82);
+						}
+						byte[] inData = new byte[maxPacketSize];
+						byte[] outData = null;
+						int outDataPos = 0;
 
-                        int inDataPos = 0;
-                        while (!ct.IsCancellationRequested && inDataPos < xferLen)
-                        {
-                            if (outData == null)
-                            {
-                                outData = new byte[1472];
-                            }
-                            while (outDataPos < outData.Length && inDataPos < xferLen)
-                            {
-                                outData[outDataPos++] = inData[inDataPos++];
-                            }
+						while (!ct.IsCancellationRequested)
+						{
+							int xferLen = inData.Length;
+							bool ret = false;
+							if (USBDevice != null)
+							{
+								ret = endpoint2.XferData(ref inData, ref xferLen);
+							}
+							else
+							{
+								ret = MonoUsbApi.BulkTransfer(MonoDeviceHandle, 0x82, inData, inData.Length, out xferLen, TIMEOUT) == 0;
+							}
+							if (ret == false)
+								break;
 
-                            if (outDataPos == outData.Length)
-                            {
-                                udp.Send(outData, outData.Length, RemoteAddress, dataPortNo);
-                                outData = null;
-                                outDataPos = 0;
-                            }
-                        }
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    // nothing to do
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"{dataPortNo}: {ex.Message}");
-                }
-                finally
-                {
-                    udp.Close();
-                }
-            }, ct);
+							int inDataPos = 0;
+							while (!ct.IsCancellationRequested && inDataPos < xferLen)
+							{
+								if (outData == null)
+								{
+									outData = new byte[1472];
+								}
+								while (outDataPos < outData.Length && inDataPos < xferLen)
+								{
+									outData[outDataPos++] = inData[inDataPos++];
+								}
+
+								if (outDataPos == outData.Length)
+								{
+									udp.Send(outData, outData.Length, RemoteAddress, dataPortNo);
+									outData = null;
+									outDataPos = 0;
+								}
+							}
+						}
+					}
+					catch (OperationCanceledException)
+					{
+						// nothing to do
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine($"{dataPortNo}: {ex.Message}");
+					}
+					finally
+					{
+						udp.Close();
+					}
+
+					Thread.Sleep(1000);
+				}
+			}, ct);
         }
 
         public override string ToString()
