@@ -266,14 +266,14 @@
     </param>
     <param>
       <key>value</key>
-      <value>40000 &lt;&lt; cic_rate</value>
+      <value>50000 &lt;&lt; cic_rate</value>
     </param>
   </block>
   <block>
     <key>analog_fm_demod_cf</key>
     <param>
       <key>audio_decim</key>
-      <value>int(samp_rate / 32000)</value>
+      <value>10</value>
     </param>
     <param>
       <key>audio_pass</key>
@@ -289,7 +289,7 @@
     </param>
     <param>
       <key>chan_rate</key>
-      <value>samp_rate</value>
+      <value>320000</value>
     </param>
     <param>
       <key>comment</key>
@@ -309,7 +309,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(184, 148)</value>
+      <value>(368, 148)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -360,7 +360,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(512, 196)</value>
+      <value>(696, 196)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -407,7 +407,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(360, 196)</value>
+      <value>(544, 196)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -771,7 +771,7 @@ class blk(gr.basic_block):
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(520, 268)</value>
+      <value>(704, 268)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -834,6 +834,65 @@ class blk(gr.basic_block):
       <value>firdes.WIN_BLACKMAN_hARRIS</value>
     </param>
   </block>
+  <block>
+    <key>rational_resampler_xxx</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>decim</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>fbw</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(184, 172)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>rational_resampler_xxx_0_0</value>
+    </param>
+    <param>
+      <key>interp</key>
+      <value>320000</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>taps</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>ccc</value>
+    </param>
+  </block>
   <connection>
     <source_block_id>analog_fm_demod_cf_0</source_block_id>
     <sink_block_id>blocks_multiply_const_vxx_0_0</sink_block_id>
@@ -854,13 +913,19 @@ class blk(gr.basic_block):
   </connection>
   <connection>
     <source_block_id>fx2_iq_udp_source_0</source_block_id>
-    <sink_block_id>analog_fm_demod_cf_0</sink_block_id>
+    <sink_block_id>qtgui_sink_x_0_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>fx2_iq_udp_source_0</source_block_id>
-    <sink_block_id>qtgui_sink_x_0_0_0</sink_block_id>
+    <sink_block_id>rational_resampler_xxx_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>rational_resampler_xxx_0_0</source_block_id>
+    <sink_block_id>analog_fm_demod_cf_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

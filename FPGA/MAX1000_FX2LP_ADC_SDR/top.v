@@ -91,7 +91,7 @@ module top
 
 
 	localparam CIC_NUM_STAGES = 4;
-	localparam CIC_MAX_RATE = 150;
+	localparam CIC_MAX_RATE = 120;
 	
 	wire [3:0] cic_rate_div;
 	wire [4:0] cic_out_gain;
@@ -100,7 +100,7 @@ module top
 	wire signed [CIC_WIDTH-1:0] qcic;
 	wire icic_valid;
 	
-	assign cic_rate_div = pio2[3:0]; // 0: 40kHz, 1: 80kHz, 2: 160kHz, 3: 320kHz, ...
+	assign cic_rate_div = pio2[3:0]; // 0: 50kHz, 1: 100kHz, 2: 200kHz, 3: 400kHz, ...
 	assign cic_out_gain = 8;
 	
 	MyCIC #(
