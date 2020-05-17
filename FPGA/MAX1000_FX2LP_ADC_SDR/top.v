@@ -204,6 +204,7 @@ module top
 	localparam BYTE2 = 3'd3;
 	localparam BYTE3 = 3'd4;
 
+	wire iq_swap;
 	wire [31:0] fifo_data;	
 	wire fifo_valid;
 	wire fifo_ready;	
@@ -218,7 +219,8 @@ module top
 //	assign fifo_data = { qfir, ifir };
 //	assign fifo_valid = counter == 0;
 	
-	assign fifo_data = { qfir, ifir };
+	assign iq_swap = pio2[8];
+	assign fifo_data = iq_swap ? { ifir, qfir } : { qfir, ifir };
 	assign fifo_valid = ifir_valid;
 	
 	assign SLRDN = 1'b1;
