@@ -741,7 +741,7 @@ class blk(gr.basic_block):
     </param>
     <param>
       <key>id</key>
-      <value>epy_block_0_0</value>
+      <value>epy_block_0</value>
     </param>
     <param>
       <key>led</key>

@@ -1,5 +1,5 @@
 Restore Archived Project report for top
-Sun May 17 10:24:24 2020
+Mon Jun 01 13:06:58 2020
 Quartus Prime Version 18.1.0 Build 625 09/12/2018 SJ Lite Edition
 
 
@@ -36,7 +36,7 @@ refer to the applicable agreement for further details.
 +-------------------------------------------------------------------------+
 ; Restore Archived Project Summary                                        ;
 +---------------------------------+---------------------------------------+
-; Restore Archived Project Status ; Successful - Sun May 17 10:24:24 2020 ;
+; Restore Archived Project Status ; Successful - Mon Jun 01 13:06:58 2020 ;
 ; Revision Name                   ; top                                   ;
 ; Top-level Entity Name           ; top                                   ;
 ; Family                          ; MAX 10                                ;
@@ -56,15 +56,21 @@ Info: Generated report 'top.restore.rpt'
 ; File Name                                                                                     ;
 +-----------------------------------------------------------------------------------------------+
 ; qar_info.json                                                                                 ;
-; MySendToFX2LP_hw.tcl                                                                          ;
 ; QsysCore.qsys                                                                                 ;
 ; QsysCore.sopcinfo                                                                             ;
+; QsysCore/QsysCore.bsf                                                                         ;
 ; QsysCore/QsysCore.cmp                                                                         ;
+; QsysCore/QsysCore.html                                                                        ;
+; QsysCore/QsysCore.xml                                                                         ;
+; QsysCore/QsysCore_bb.v                                                                        ;
+; QsysCore/QsysCore_generation.rpt                                                              ;
+; QsysCore/QsysCore_generation_previous.rpt                                                     ;
+; QsysCore/QsysCore_inst.v                                                                      ;
+; QsysCore/QsysCore_inst.vhd                                                                    ;
 ; QsysCore/synthesis/QsysCore.debuginfo                                                         ;
 ; QsysCore/synthesis/QsysCore.qip                                                               ;
 ; QsysCore/synthesis/QsysCore.regmap                                                            ;
 ; QsysCore/synthesis/QsysCore.v                                                                 ;
-; QsysCore/synthesis/submodules/QsysCore_fifo_0.sdc                                             ;
 ; QsysCore/synthesis/submodules/QsysCore_mm_interconnect_0.v                                    ;
 ; QsysCore/synthesis/submodules/QsysCore_mm_interconnect_0_avalon_st_adapter.v                  ;
 ; QsysCore/synthesis/submodules/QsysCore_mm_interconnect_0_avalon_st_adapter_error_adapter_0.sv ;
@@ -76,7 +82,6 @@ Info: Generated report 'top.restore.rpt'
 ; QsysCore/synthesis/submodules/QsysCore_mm_interconnect_0_rsp_mux.sv                           ;
 ; QsysCore/synthesis/submodules/QsysCore_pio_0.v                                                ;
 ; QsysCore/synthesis/submodules/SPISlaveToAvalonMasterBridge.v                                  ;
-; QsysCore/synthesis/submodules/altera_avalon_dc_fifo.sdc                                       ;
 ; QsysCore/synthesis/submodules/altera_avalon_packets_to_master.v                               ;
 ; QsysCore/synthesis/submodules/altera_avalon_packets_to_master_inst_for_spichain.v             ;
 ; QsysCore/synthesis/submodules/altera_avalon_sc_fifo.v                                         ;
