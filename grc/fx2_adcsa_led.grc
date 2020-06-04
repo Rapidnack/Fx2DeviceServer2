@@ -1,0 +1,276 @@
+<?xml version='1.0' encoding='utf-8'?>
+<?grc format='1' created='3.7.13'?>
+<flow_graph>
+  <timestamp>Fri May 22 14:33:16 2020</timestamp>
+  <block>
+    <key>options</key>
+    <param>
+      <key>author</key>
+      <value></value>
+    </param>
+    <param>
+      <key>window_size</key>
+      <value></value>
+    </param>
+    <param>
+      <key>category</key>
+      <value>[GRC Hier Blocks]</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>description</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 8)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>generate_options</key>
+      <value>qt_gui</value>
+    </param>
+    <param>
+      <key>hier_block_src_path</key>
+      <value>.:</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>top_block</value>
+    </param>
+    <param>
+      <key>max_nouts</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>qt_qss_theme</key>
+      <value></value>
+    </param>
+    <param>
+      <key>realtime_scheduling</key>
+      <value></value>
+    </param>
+    <param>
+      <key>run_command</key>
+      <value>{python} -u {filename}</value>
+    </param>
+    <param>
+      <key>run_options</key>
+      <value>prompt</value>
+    </param>
+    <param>
+      <key>run</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>sizing_mode</key>
+      <value>fixed</value>
+    </param>
+    <param>
+      <key>thread_safe_setters</key>
+      <value></value>
+    </param>
+    <param>
+      <key>title</key>
+      <value></value>
+    </param>
+    <param>
+      <key>placement</key>
+      <value>(0,0)</value>
+    </param>
+  </block>
+  <block>
+    <key>variable_qtgui_range</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(200, 76)</value>
+    </param>
+    <param>
+      <key>gui_hint</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>led</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value>LED</value>
+    </param>
+    <param>
+      <key>min_len</key>
+      <value>200</value>
+    </param>
+    <param>
+      <key>orient</key>
+      <value>Qt.Horizontal</value>
+    </param>
+    <param>
+      <key>start</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>step</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>stop</key>
+      <value>255</value>
+    </param>
+    <param>
+      <key>rangeType</key>
+      <value>int</value>
+    </param>
+    <param>
+      <key>widget</key>
+      <value>counter_slider</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(8, 76)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>32000</value>
+    </param>
+  </block>
+  <block>
+    <key>epy_block</key>
+    <param>
+      <key>address</key>
+      <value>'127.0.0.1'</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_io_cache</key>
+      <value>('ADC_SA_LED', 'blk', [('address', "'127.0.0.1'"), ('port', '53006'), ('led', '0')], [], [], 'Embedded Python Block example - ADC_SA_LED', ['led'])</value>
+    </param>
+    <param>
+      <key>_source_code</key>
+      <value>import numpy as np
+from gnuradio import gr
+import socket
+
+class blk(gr.basic_block):
+    """Embedded Python Block example - ADC_SA_LED"""
+
+    def __init__(self, address='127.0.0.1', port=53006, led=0):
+        gr.basic_block.__init__(
+            self,
+            name='ADC_SA_LED',
+            in_sig=None,
+            out_sig=None
+        )
+        self._address = address
+        self._port = port
+        self._led = led
+
+        try:
+            self._connect()
+            self._send_led()
+        except:
+            pass
+
+    def _connect(self):
+        print('connecting to %s:%d' % (self._address, self._port))
+        self._client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._client.connect((self._address, self._port))
+        self._stream = self._client.makefile()
+
+    def _send_led(self):
+        try:
+            self._stream.write('*W32:0x%x 0x%x\n' % (0x0, int(self._led)))
+            self._stream.flush()
+        except:
+            self._connect()
+            self._stream.write('*W32:0x%x 0x%x\n' % (0x0, int(self._led)))
+            self._stream.flush()
+
+    @property
+    def led(self):
+        return self._led
+
+    @led.setter
+    def led(self, led):
+        self._led = led
+        self._send_led()
+</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(336, 100)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>epy_block_0</value>
+    </param>
+    <param>
+      <key>led</key>
+      <value>led</value>
+    </param>
+    <param>
+      <key>port</key>
+      <value>53006</value>
+    </param>
+  </block>
+</flow_graph>
