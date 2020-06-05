@@ -37,7 +37,7 @@ namespace Fx2DeviceServer
 		private static Dictionary<ushort, TcpListener> listenerDict = new Dictionary<ushort, TcpListener>();
 		private TcpClient controlClient = null;
 		protected const int TIMEOUT = 3000;
-		private IAvalonPacket avalonPacket = null;
+		protected IAvalonPacket avalonPacket = null;
 
 		protected EDeviceType DeviceType { get; private set; } = EDeviceType.Unknown;
 
@@ -54,8 +54,7 @@ namespace Fx2DeviceServer
 
 				if (0 < ControlPortNo)
 				{
-					CancellationTokenSource cts = new CancellationTokenSource();
-					var ct = cts.Token;
+					var ct = Cts.Token;
 					Task.Run(() =>
 					{
 						TcpListener listener = CreateListener(ControlPortNo);
@@ -85,8 +84,8 @@ namespace Fx2DeviceServer
 									try
 									{
 										using (NetworkStream ns = controlClient.GetStream())
-										using (StreamReader sr = new StreamReader(ns, Encoding.UTF8))
-										using (StreamWriter sw = new StreamWriter(ns, Encoding.UTF8))
+										using (StreamReader sr = new StreamReader(ns, Encoding.ASCII))
+										using (StreamWriter sw = new StreamWriter(ns, Encoding.ASCII))
 										{
 											while (!tcpCt.IsCancellationRequested)
 											{
@@ -151,7 +150,7 @@ namespace Fx2DeviceServer
 			}
 		}
 
-		protected CancellationTokenSource Cts { get; set; } = new CancellationTokenSource();
+		protected CancellationTokenSource Cts { get; } = new CancellationTokenSource();
 
 		protected int NumTcpClients { get; private set; } = 0;
 
@@ -382,7 +381,7 @@ namespace Fx2DeviceServer
 			Console.WriteLine($"{ControlPortNo}: [out] {s}");
 		}
 
-		private static TcpListener CreateListener(ushort port)
+		protected static TcpListener CreateListener(ushort port)
 		{
 			if (listenerDict.ContainsKey(port))
 			{

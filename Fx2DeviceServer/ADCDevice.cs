@@ -35,7 +35,6 @@ namespace Fx2DeviceServer
                 endpoint2 = USBDevice.EndPointOf(0x82) as CyBulkEndPoint;
             }
 
-            Cts = new CancellationTokenSource();
             var ct = Cts.Token;
             Task.Run(() =>
             {
@@ -63,7 +62,7 @@ namespace Fx2DeviceServer
 						byte[] outData = null;
 						int outDataPos = 0;
 
-						while (!ct.IsCancellationRequested)
+						while (!ct.IsCancellationRequested && !(ControlPortNo > 0 && NumTcpClients == 0))
 						{
 							int xferLen = inData.Length;
 							bool ret = false;
