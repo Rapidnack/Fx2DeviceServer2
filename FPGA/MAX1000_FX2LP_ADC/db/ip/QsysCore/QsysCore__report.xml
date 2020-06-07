@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy
- date="2020.06.01.16:33:59"
+ date="2020.06.04.11:07:12"
  outputDirectory="C:/intelFPGA_lite/18.1/projects/MAX1000_FX2LP_ADC/db/ip/QsysCore/">
  <perimeter>
   <parameter
@@ -110,13 +110,13 @@
  </perimeter>
  <entity
    path=""
-   parameterizationKey="QsysCore:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=10M08SAU169C8G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1590996791,AUTO_UNIQUE_ID=(clock_source:18.1:clockFrequency=48000000,clockFrequencyKnown=true,inputClockFrequency=0,resetSynchronousEdges=NONE)(altera_avalon_pio:18.1:bitClearingEdgeCapReg=false,bitModifyingOutReg=false,captureEdge=false,clockRate=48000000,derived_capture=false,derived_do_test_bench_wiring=false,derived_edge_type=NONE,derived_has_in=false,derived_has_irq=false,derived_has_out=true,derived_has_tri=false,derived_irq_type=NONE,direction=Output,edgeType=RISING,generateIRQ=false,irqType=LEVEL,resetValue=0,simDoTestBenchWiring=false,simDrivenValue=0,width=32)(altera_avalon_pio:18.1:bitClearingEdgeCapReg=false,bitModifyingOutReg=false,captureEdge=false,clockRate=48000000,derived_capture=false,derived_do_test_bench_wiring=false,derived_edge_type=NONE,derived_has_in=false,derived_has_irq=false,derived_has_out=true,derived_has_tri=false,derived_irq_type=NONE,direction=Output,edgeType=RISING,generateIRQ=false,irqType=LEVEL,resetValue=0,simDoTestBenchWiring=false,simDrivenValue=0,width=32)(spi_slave_to_avalon_mm_master_bridge:18.1:AUTO_CLK_CLOCK_RATE=48000000,AUTO_DEVICE_FAMILY=MAX 10,SYNC_DEPTH=2)(avalon:18.1:arbitrationPriority=1,baseAddress=0x0000,defaultConnection=false)(avalon:18.1:arbitrationPriority=1,baseAddress=0x0010,defaultConnection=false)(clock:18.1:)(clock:18.1:)(clock:18.1:)(reset:18.1:)(reset:18.1:)(reset:18.1:)"
+   parameterizationKey="QsysCore:1.0:AUTO_CLK_CLOCK_DOMAIN=-1,AUTO_CLK_CLOCK_RATE=-1,AUTO_CLK_RESET_DOMAIN=-1,AUTO_DEVICE=10M08SAU169C8G,AUTO_DEVICE_FAMILY=MAX 10,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1591236379,AUTO_UNIQUE_ID=(clock_source:18.1:clockFrequency=48000000,clockFrequencyKnown=true,inputClockFrequency=0,resetSynchronousEdges=NONE)(altera_avalon_pio:18.1:bitClearingEdgeCapReg=false,bitModifyingOutReg=false,captureEdge=false,clockRate=48000000,derived_capture=false,derived_do_test_bench_wiring=false,derived_edge_type=NONE,derived_has_in=false,derived_has_irq=false,derived_has_out=true,derived_has_tri=false,derived_irq_type=NONE,direction=Output,edgeType=RISING,generateIRQ=false,irqType=LEVEL,resetValue=0,simDoTestBenchWiring=false,simDrivenValue=0,width=32)(altera_avalon_pio:18.1:bitClearingEdgeCapReg=false,bitModifyingOutReg=false,captureEdge=false,clockRate=48000000,derived_capture=false,derived_do_test_bench_wiring=false,derived_edge_type=NONE,derived_has_in=false,derived_has_irq=false,derived_has_out=true,derived_has_tri=false,derived_irq_type=NONE,direction=Output,edgeType=RISING,generateIRQ=false,irqType=LEVEL,resetValue=0,simDoTestBenchWiring=false,simDrivenValue=0,width=32)(spi_slave_to_avalon_mm_master_bridge:18.1:AUTO_CLK_CLOCK_RATE=48000000,AUTO_DEVICE_FAMILY=MAX 10,SYNC_DEPTH=2)(avalon:18.1:arbitrationPriority=1,baseAddress=0x0000,defaultConnection=false)(avalon:18.1:arbitrationPriority=1,baseAddress=0x0010,defaultConnection=false)(clock:18.1:)(clock:18.1:)(clock:18.1:)(reset:18.1:)(reset:18.1:)(reset:18.1:)"
    instancePathKey="QsysCore"
    kind="QsysCore"
    version="1.0"
    name="QsysCore">
   <parameter name="AUTO_CLK_CLOCK_RATE" value="-1" />
-  <parameter name="AUTO_GENERATION_ID" value="1590996791" />
+  <parameter name="AUTO_GENERATION_ID" value="1591236379" />
   <parameter name="AUTO_DEVICE" value="10M08SAU169C8G" />
   <parameter name="AUTO_DEVICE_FAMILY" value="MAX 10" />
   <parameter name="AUTO_CLK_RESET_DOMAIN" value="-1" />
@@ -461,20 +461,20 @@
    <message level="Debug" culprit="QsysCore"><![CDATA["<b>QsysCore</b>" reuses <b>altera_reset_controller</b> "<b>submodules/altera_reset_controller</b>"]]></message>
    <message level="Debug" culprit="QsysCore">queue size: 4 starting:altera_avalon_pio "submodules/QsysCore_pio_0"</message>
    <message level="Info" culprit="pio_0">Starting RTL generation for module 'QsysCore_pio_0'</message>
-   <message level="Info" culprit="pio_0">  Generation command is [exec C:/intelfpga_lite/18.1/quartus/bin64/perl/bin/perl.exe -I C:/intelfpga_lite/18.1/quartus/bin64/perl/lib -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/europa -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/perl_lib -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin -I C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=QsysCore_pio_0 --dir=C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0004_pio_0_gen/ --quartus_dir=C:/intelfpga_lite/18.1/quartus --verilog --config=C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0004_pio_0_gen//QsysCore_pio_0_component_configuration.pl  --do_build_sim=0  ]</message>
+   <message level="Info" culprit="pio_0">  Generation command is [exec C:/intelfpga_lite/18.1/quartus/bin64/perl/bin/perl.exe -I C:/intelfpga_lite/18.1/quartus/bin64/perl/lib -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/europa -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/perl_lib -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin -I C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=QsysCore_pio_0 --dir=C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0004_pio_0_gen/ --quartus_dir=C:/intelfpga_lite/18.1/quartus --verilog --config=C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0004_pio_0_gen//QsysCore_pio_0_component_configuration.pl  --do_build_sim=0  ]</message>
    <message level="Info" culprit="pio_0">Done RTL generation for module 'QsysCore_pio_0'</message>
    <message level="Info" culprit="pio_0"><![CDATA["<b>QsysCore</b>" instantiated <b>altera_avalon_pio</b> "<b>pio_0</b>"]]></message>
    <message level="Debug" culprit="QsysCore">queue size: 2 starting:spi_slave_to_avalon_mm_master_bridge "submodules/SPISlaveToAvalonMasterBridge"</message>
    <message level="Debug">set ALTERA_HW_TCL_KEEP_TEMP_FILES=1 to retain temp files</message>
-   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_sh.exe -t C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0003_sopcqmap/not_a_project_setup.tcl</message>
-   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_map.exe not_a_project --generate_hdl_interface=C:/intelfpga_lite/18.1/ip/altera/sopc_builder_ip/altera_avalon_spislave_to_avalonmm_bridge/SPISlaveToAvalonMasterBridge.v --set=HDL_INTERFACE_OUTPUT_PATH=C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0003_sopcqmap/ --ini=disable_check_quartus_compatibility_qsys_only=on</message>
-   <message level="Debug">Command took 2.549s</message>
-   <message level="Debug">Command took 3.818s</message>
+   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_sh.exe -t C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0003_sopcqmap/not_a_project_setup.tcl</message>
+   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_map.exe not_a_project --generate_hdl_interface=C:/intelfpga_lite/18.1/ip/altera/sopc_builder_ip/altera_avalon_spislave_to_avalonmm_bridge/SPISlaveToAvalonMasterBridge.v --set=HDL_INTERFACE_OUTPUT_PATH=C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0003_sopcqmap/ --ini=disable_check_quartus_compatibility_qsys_only=on</message>
+   <message level="Debug">Command took 2.791s</message>
+   <message level="Debug">Command took 3.571s</message>
    <message level="Debug">set ALTERA_HW_TCL_KEEP_TEMP_FILES=1 to retain temp files</message>
-   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_sh.exe -t C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0005_sopcqmap/not_a_project_setup.tcl</message>
-   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_map.exe not_a_project --generate_hdl_interface=C:\intelfpga_lite\18.1\ip\altera\sopc_builder_ip\altera_avalon_spislave_to_avalonmm_bridge\SPISlaveToAvalonMasterBridge.v --set=HDL_INTERFACE_OUTPUT_PATH=C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0005_sopcqmap/ --set=HDL_INTERFACE_INSTANCE_NAME=inst --set=HDL_INTERFACE_INSTANCE_ENTITY=SPISlaveToAvalonMasterBridge "--set=HDL_INTERFACE_INSTANCE_PARAMETERS=SYNC_DEPTH=D\"2\";" --ini=disable_check_quartus_compatibility_qsys_only=on</message>
-   <message level="Debug">Command took 2.557s</message>
-   <message level="Debug">Command took 3.862s</message>
+   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_sh.exe -t C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0005_sopcqmap/not_a_project_setup.tcl</message>
+   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_map.exe not_a_project --generate_hdl_interface=C:\intelfpga_lite\18.1\ip\altera\sopc_builder_ip\altera_avalon_spislave_to_avalonmm_bridge\SPISlaveToAvalonMasterBridge.v --set=HDL_INTERFACE_OUTPUT_PATH=C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0005_sopcqmap/ --set=HDL_INTERFACE_INSTANCE_NAME=inst --set=HDL_INTERFACE_INSTANCE_ENTITY=SPISlaveToAvalonMasterBridge "--set=HDL_INTERFACE_INSTANCE_PARAMETERS=SYNC_DEPTH=D\"2\";" --ini=disable_check_quartus_compatibility_qsys_only=on</message>
+   <message level="Debug">Command took 2.435s</message>
+   <message level="Debug">Command took 3.928s</message>
    <message level="Info" culprit="spi_slave_to_avalon_mm_master_bridge_0"><![CDATA["<b>QsysCore</b>" instantiated <b>spi_slave_to_avalon_mm_master_bridge</b> "<b>spi_slave_to_avalon_mm_master_bridge_0</b>"]]></message>
    <message level="Debug" culprit="QsysCore">queue size: 1 starting:altera_mm_interconnect "submodules/QsysCore_mm_interconnect_0"</message>
    <message level="Progress" culprit="min"></message>
@@ -568,17 +568,17 @@
    <message level="Progress" culprit="current"></message>
    <message level="Info" culprit="avalon_st_adapter">Inserting error_adapter: error_adapter_0</message>
    <message level="Debug" culprit="avalon_st_adapter.clk_bridge_0">Timing: ELA:1/0.001s</message>
-   <message level="Debug" culprit="avalon_st_adapter.rst_bridge_0">Timing: ELA:2/0.003s/0.003s</message>
-   <message level="Debug" culprit="avalon_st_adapter.error_adapter_0">Timing: ELA:1/0.023s</message>
-   <message level="Debug" culprit="avalon_st_adapter">Timing: COM:3/0.132s/0.171s</message>
+   <message level="Debug" culprit="avalon_st_adapter.rst_bridge_0">Timing: ELA:2/0.002s/0.003s</message>
+   <message level="Debug" culprit="avalon_st_adapter.error_adapter_0">Timing: ELA:1/0.025s</message>
+   <message level="Debug" culprit="avalon_st_adapter">Timing: COM:3/0.188s/0.301s</message>
    <message level="Progress" culprit="min"></message>
    <message level="Progress" culprit="max"></message>
    <message level="Progress" culprit="current"></message>
    <message level="Info" culprit="avalon_st_adapter_001">Inserting error_adapter: error_adapter_0</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.clk_bridge_0">Timing: ELA:1/0.001s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.rst_bridge_0">Timing: ELA:2/0.003s/0.003s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.error_adapter_0">Timing: ELA:1/0.023s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001">Timing: COM:3/0.066s/0.085s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.clk_bridge_0">Timing: ELA:1/0.002s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.rst_bridge_0">Timing: ELA:2/0.002s/0.002s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.error_adapter_0">Timing: ELA:1/0.024s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001">Timing: COM:3/0.067s/0.086s</message>
    <message
        level="Debug"
        culprit="com_altera_sopcmodel_transforms_avalonst_AvalonStreamingTransform"><![CDATA[After transform: <b>22</b> modules, <b>68</b> connections]]></message>
@@ -700,7 +700,7 @@
   <messages>
    <message level="Debug" culprit="QsysCore">queue size: 4 starting:altera_avalon_pio "submodules/QsysCore_pio_0"</message>
    <message level="Info" culprit="pio_0">Starting RTL generation for module 'QsysCore_pio_0'</message>
-   <message level="Info" culprit="pio_0">  Generation command is [exec C:/intelfpga_lite/18.1/quartus/bin64/perl/bin/perl.exe -I C:/intelfpga_lite/18.1/quartus/bin64/perl/lib -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/europa -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/perl_lib -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin -I C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=QsysCore_pio_0 --dir=C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0004_pio_0_gen/ --quartus_dir=C:/intelfpga_lite/18.1/quartus --verilog --config=C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0004_pio_0_gen//QsysCore_pio_0_component_configuration.pl  --do_build_sim=0  ]</message>
+   <message level="Info" culprit="pio_0">  Generation command is [exec C:/intelfpga_lite/18.1/quartus/bin64/perl/bin/perl.exe -I C:/intelfpga_lite/18.1/quartus/bin64/perl/lib -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/europa -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin/perl_lib -I C:/intelfpga_lite/18.1/quartus/sopc_builder/bin -I C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/common -I C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- C:/intelfpga_lite/18.1/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=QsysCore_pio_0 --dir=C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0004_pio_0_gen/ --quartus_dir=C:/intelfpga_lite/18.1/quartus --verilog --config=C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0004_pio_0_gen//QsysCore_pio_0_component_configuration.pl  --do_build_sim=0  ]</message>
    <message level="Info" culprit="pio_0">Done RTL generation for module 'QsysCore_pio_0'</message>
    <message level="Info" culprit="pio_0"><![CDATA["<b>QsysCore</b>" instantiated <b>altera_avalon_pio</b> "<b>pio_0</b>"]]></message>
   </messages>
@@ -786,15 +786,15 @@
   <messages>
    <message level="Debug" culprit="QsysCore">queue size: 2 starting:spi_slave_to_avalon_mm_master_bridge "submodules/SPISlaveToAvalonMasterBridge"</message>
    <message level="Debug">set ALTERA_HW_TCL_KEEP_TEMP_FILES=1 to retain temp files</message>
-   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_sh.exe -t C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0003_sopcqmap/not_a_project_setup.tcl</message>
-   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_map.exe not_a_project --generate_hdl_interface=C:/intelfpga_lite/18.1/ip/altera/sopc_builder_ip/altera_avalon_spislave_to_avalonmm_bridge/SPISlaveToAvalonMasterBridge.v --set=HDL_INTERFACE_OUTPUT_PATH=C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0003_sopcqmap/ --ini=disable_check_quartus_compatibility_qsys_only=on</message>
-   <message level="Debug">Command took 2.549s</message>
-   <message level="Debug">Command took 3.818s</message>
+   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_sh.exe -t C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0003_sopcqmap/not_a_project_setup.tcl</message>
+   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_map.exe not_a_project --generate_hdl_interface=C:/intelfpga_lite/18.1/ip/altera/sopc_builder_ip/altera_avalon_spislave_to_avalonmm_bridge/SPISlaveToAvalonMasterBridge.v --set=HDL_INTERFACE_OUTPUT_PATH=C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0003_sopcqmap/ --ini=disable_check_quartus_compatibility_qsys_only=on</message>
+   <message level="Debug">Command took 2.791s</message>
+   <message level="Debug">Command took 3.571s</message>
    <message level="Debug">set ALTERA_HW_TCL_KEEP_TEMP_FILES=1 to retain temp files</message>
-   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_sh.exe -t C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0005_sopcqmap/not_a_project_setup.tcl</message>
-   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_map.exe not_a_project --generate_hdl_interface=C:\intelfpga_lite\18.1\ip\altera\sopc_builder_ip\altera_avalon_spislave_to_avalonmm_bridge\SPISlaveToAvalonMasterBridge.v --set=HDL_INTERFACE_OUTPUT_PATH=C:/Users/zaurus/AppData/Local/Temp/alt8414_3539927540645990279.dir/0005_sopcqmap/ --set=HDL_INTERFACE_INSTANCE_NAME=inst --set=HDL_INTERFACE_INSTANCE_ENTITY=SPISlaveToAvalonMasterBridge "--set=HDL_INTERFACE_INSTANCE_PARAMETERS=SYNC_DEPTH=D\"2\";" --ini=disable_check_quartus_compatibility_qsys_only=on</message>
-   <message level="Debug">Command took 2.557s</message>
-   <message level="Debug">Command took 3.862s</message>
+   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_sh.exe -t C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0005_sopcqmap/not_a_project_setup.tcl</message>
+   <message level="Debug">Command: C:/intelfpga_lite/18.1/quartus\bin64/quartus_map.exe not_a_project --generate_hdl_interface=C:\intelfpga_lite\18.1\ip\altera\sopc_builder_ip\altera_avalon_spislave_to_avalonmm_bridge\SPISlaveToAvalonMasterBridge.v --set=HDL_INTERFACE_OUTPUT_PATH=C:/Users/zaurus/AppData/Local/Temp/alt8417_4029837931916441872.dir/0005_sopcqmap/ --set=HDL_INTERFACE_INSTANCE_NAME=inst --set=HDL_INTERFACE_INSTANCE_ENTITY=SPISlaveToAvalonMasterBridge "--set=HDL_INTERFACE_INSTANCE_PARAMETERS=SYNC_DEPTH=D\"2\";" --ini=disable_check_quartus_compatibility_qsys_only=on</message>
+   <message level="Debug">Command took 2.435s</message>
+   <message level="Debug">Command took 3.928s</message>
    <message level="Info" culprit="spi_slave_to_avalon_mm_master_bridge_0"><![CDATA["<b>QsysCore</b>" instantiated <b>spi_slave_to_avalon_mm_master_bridge</b> "<b>spi_slave_to_avalon_mm_master_bridge_0</b>"]]></message>
   </messages>
  </entity>
@@ -1078,17 +1078,17 @@
    <message level="Progress" culprit="current"></message>
    <message level="Info" culprit="avalon_st_adapter">Inserting error_adapter: error_adapter_0</message>
    <message level="Debug" culprit="avalon_st_adapter.clk_bridge_0">Timing: ELA:1/0.001s</message>
-   <message level="Debug" culprit="avalon_st_adapter.rst_bridge_0">Timing: ELA:2/0.003s/0.003s</message>
-   <message level="Debug" culprit="avalon_st_adapter.error_adapter_0">Timing: ELA:1/0.023s</message>
-   <message level="Debug" culprit="avalon_st_adapter">Timing: COM:3/0.132s/0.171s</message>
+   <message level="Debug" culprit="avalon_st_adapter.rst_bridge_0">Timing: ELA:2/0.002s/0.003s</message>
+   <message level="Debug" culprit="avalon_st_adapter.error_adapter_0">Timing: ELA:1/0.025s</message>
+   <message level="Debug" culprit="avalon_st_adapter">Timing: COM:3/0.188s/0.301s</message>
    <message level="Progress" culprit="min"></message>
    <message level="Progress" culprit="max"></message>
    <message level="Progress" culprit="current"></message>
    <message level="Info" culprit="avalon_st_adapter_001">Inserting error_adapter: error_adapter_0</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.clk_bridge_0">Timing: ELA:1/0.001s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.rst_bridge_0">Timing: ELA:2/0.003s/0.003s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001.error_adapter_0">Timing: ELA:1/0.023s</message>
-   <message level="Debug" culprit="avalon_st_adapter_001">Timing: COM:3/0.066s/0.085s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.clk_bridge_0">Timing: ELA:1/0.002s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.rst_bridge_0">Timing: ELA:2/0.002s/0.002s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001.error_adapter_0">Timing: ELA:1/0.024s</message>
+   <message level="Debug" culprit="avalon_st_adapter_001">Timing: COM:3/0.067s/0.086s</message>
    <message
        level="Debug"
        culprit="com_altera_sopcmodel_transforms_avalonst_AvalonStreamingTransform"><![CDATA[After transform: <b>22</b> modules, <b>68</b> connections]]></message>

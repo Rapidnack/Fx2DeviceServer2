@@ -67,8 +67,6 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[3]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[2]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[0]
-set_global_assignment -name QSYS_FILE QsysCore.qsys
-set_global_assignment -name VERILOG_FILE top.v
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name FLOW_ENABLE_POWER_ANALYZER ON
@@ -81,7 +79,6 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SPI_MISO
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SPI_MOSI
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SPI_NSS
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SPI_SCLK
-set_global_assignment -name QIP_FILE pll.qip
 set_location_assignment PIN_G12 -to ADDA_CLK
 set_location_assignment PIN_L12 -to ADDA[0]
 set_location_assignment PIN_J12 -to ADDA[1]
@@ -136,4 +133,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FLAGN[1]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FLAGN[2]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FIFOADR[0]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FIFOADR[1]
+set_global_assignment -name QIP_FILE pll.qip
+set_global_assignment -name QIP_FILE QsysCore/synthesis/QsysCore.qip
+set_global_assignment -name VERILOG_FILE top.v
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -1,0 +1,15 @@
+# # File gsaved with Nlview version 6.3.8  2013-12-19 bk=1.2992 VDI=34 GEI=35
+# 
+preplace inst QsysCore.spi_slave_to_avalon_mm_master_bridge_0 -pg 1 -lvl 2 -y 30
+preplace inst QsysCore.pio_0 -pg 1 -lvl 3 -y 90
+preplace inst QsysCore -pg 1 -lvl 1 -y 40 -regy -20
+preplace inst QsysCore.clk_0 -pg 1 -lvl 1 -y 130
+preplace netloc EXPORT<net_container>QsysCore</net_container>(SLAVE)spi_slave_to_avalon_mm_master_bridge_0.export_0,(SLAVE)QsysCore.spi_slave_to_avalon_mm_master_bridge_0_export_0) 1 0 2 NJ 80 NJ
+preplace netloc EXPORT<net_container>QsysCore</net_container>(SLAVE)QsysCore.reset,(SLAVE)clk_0.clk_in_reset) 1 0 1 NJ
+preplace netloc EXPORT<net_container>QsysCore</net_container>(SLAVE)QsysCore.clk,(SLAVE)clk_0.clk_in) 1 0 1 NJ
+preplace netloc POINT_TO_POINT<net_container>QsysCore</net_container>(MASTER)spi_slave_to_avalon_mm_master_bridge_0.avalon_master,(SLAVE)pio_0.s1) 1 2 1 680
+preplace netloc FAN_OUT<net_container>QsysCore</net_container>(MASTER)clk_0.clk_reset,(SLAVE)pio_0.reset,(SLAVE)spi_slave_to_avalon_mm_master_bridge_0.clk_reset) 1 1 2 430 160 660
+preplace netloc FAN_OUT<net_container>QsysCore</net_container>(MASTER)clk_0.clk,(SLAVE)spi_slave_to_avalon_mm_master_bridge_0.clk,(SLAVE)pio_0.clk) 1 1 2 410 140 640
+preplace netloc EXPORT<net_container>QsysCore</net_container>(SLAVE)QsysCore.pio_0_external_connection,(SLAVE)pio_0.external_connection) 1 0 3 NJ 120 NJ 120 NJ
+levelinfo -pg 1 0 200 870
+levelinfo -hier QsysCore 210 240 460 710 860
