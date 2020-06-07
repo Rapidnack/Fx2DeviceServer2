@@ -2,6 +2,7 @@
 using MonoLibUsb;
 using MonoLibUsb.Profile;
 using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,7 +41,7 @@ namespace Fx2DeviceServer
             {
 				while (!ct.IsCancellationRequested)
 				{
-					if (ControlPortNo > 0 && NumTcpClients == 0)
+					if (ControlPortNo > 0 && controlClients.Count == 0)
 					{
 						Thread.Sleep(100);
 						continue;
@@ -62,7 +63,7 @@ namespace Fx2DeviceServer
 						byte[] outData = null;
 						int outDataPos = 0;
 
-						while (!ct.IsCancellationRequested && !(ControlPortNo > 0 && NumTcpClients == 0))
+						while (!ct.IsCancellationRequested && !(ControlPortNo > 0 && controlClients.Count == 0))
 						{
 							int xferLen = inData.Length;
 							bool ret = false;
@@ -91,7 +92,26 @@ namespace Fx2DeviceServer
 
 								if (outDataPos == outData.Length)
 								{
-									udp.Send(outData, outData.Length, RemoteAddress, dataPortNo);
+									foreach (var client in controlClients.ToArray())
+									{
+										string remoteAddr;
+										try
+										{
+											remoteAddr = ((IPEndPoint)client.Client.RemoteEndPoint).Address.ToString();
+										}
+										catch
+										{
+											continue;
+										}
+
+										udp.Send(outData, outData.Length, remoteAddr, dataPortNo);
+									}
+
+									if (ControlPortNo == 0)
+									{
+										udp.Send(outData, outData.Length, "127.0.0.1", dataPortNo);
+									}
+
 									outData = null;
 									outDataPos = 0;
 								}

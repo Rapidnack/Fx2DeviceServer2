@@ -35,7 +35,7 @@ namespace Fx2DeviceServer
 		}
 
 		private static Dictionary<ushort, TcpListener> listenerDict = new Dictionary<ushort, TcpListener>();
-		private TcpClient controlClient = null;
+		protected List<TcpClient> controlClients = new List<TcpClient>();
 		protected const int TIMEOUT = 3000;
 		protected IAvalonPacket avalonPacket = null;
 
@@ -68,7 +68,7 @@ namespace Fx2DeviceServer
 							CancellationTokenSource tcpCts = null;
 							while (!ct.IsCancellationRequested)
 							{
-								controlClient = listener.AcceptTcpClient();
+								TcpClient controlClient = listener.AcceptTcpClient();
 								Console.WriteLine($"{ControlPortNo}: accepted");
 
 								if (tcpCts != null)
@@ -80,7 +80,7 @@ namespace Fx2DeviceServer
 								var tcpCt = tcpCts.Token;
 								Task.Run(() =>
 								{
-									NumTcpClients++;
+									controlClients.Add(controlClient);
 									try
 									{
 										using (NetworkStream ns = controlClient.GetStream())
@@ -104,7 +104,7 @@ namespace Fx2DeviceServer
 									}
 									finally
 									{
-										NumTcpClients--;
+										controlClients.Remove(controlClient);
 										Console.WriteLine($"{ControlPortNo}: closed");
 									}
 								}, tcpCt);
@@ -132,27 +132,7 @@ namespace Fx2DeviceServer
 			}
 		}
 
-		protected string RemoteAddress
-		{
-			get
-			{
-				if (NumTcpClients == 0)
-					return "127.0.0.1";
-
-				try
-				{
-					return ((IPEndPoint)controlClient.Client.RemoteEndPoint).Address.ToString();
-				}
-				catch
-				{
-					return "127.0.0.1";
-				}
-			}
-		}
-
 		protected CancellationTokenSource Cts { get; } = new CancellationTokenSource();
-
-		protected int NumTcpClients { get; private set; } = 0;
 
 		protected MonoUsbDeviceHandle MonoDeviceHandle { get; private set; } = null;
 

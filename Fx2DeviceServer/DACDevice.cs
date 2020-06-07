@@ -43,7 +43,7 @@ namespace Fx2DeviceServer
                 {
                     while (!ct.IsCancellationRequested)
                     {
-						if (ControlPortNo > 0 && NumTcpClients == 0)
+						if (ControlPortNo > 0 && controlClients.Count == 0)
 						{
 							Thread.Sleep(100);
 							continue;
@@ -52,7 +52,23 @@ namespace Fx2DeviceServer
 						TcpClient client = null;
                         try
                         {
-                            client = new TcpClient(RemoteAddress, dataPortNo);
+							string remoteAddr;
+							if (ControlPortNo == 0)
+							{
+								remoteAddr = "127.0.0.1";
+							}
+							else
+							{
+								try
+								{
+									remoteAddr = ((IPEndPoint)controlClients[0].Client.RemoteEndPoint).Address.ToString();
+								}
+								catch
+								{
+									continue;
+								}
+							}
+							client = new TcpClient(remoteAddr, dataPortNo);
                         }
                         catch (SocketException ex)
                         {
@@ -85,7 +101,7 @@ namespace Fx2DeviceServer
                             byte[] outData = new byte[maxPacketSize - 16]; // Some PCs cannot send 1024 bytes
 							int outDataPos = 0;
 
-                            while (!ct.IsCancellationRequested && !(ControlPortNo > 0 && NumTcpClients == 0))
+                            while (!ct.IsCancellationRequested && !(ControlPortNo > 0 && controlClients.Count == 0))
                             {
                                 int resSize = ns.Read(inData, 0, inData.Length);
                                 if (resSize == 0)
